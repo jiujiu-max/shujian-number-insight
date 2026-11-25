@@ -73,7 +73,39 @@ export function focusTrap(star: PortraitStar, mood: ModifierMood) {
 
 // The cover names one concern. Ordered mixed effects remain in the detailed
 // reading; neither modifier is cancelled or turned into a numeric penalty.
+// A plain pair may describe caution or steady cooperation. Its cover must not
+// automatically inherit an unrelated type-wide borrowing or overwork story.
+export function pairFocusConcern(star:PortraitStar,group?:NumberGroup) {
+  if(!group || group.stars.length!==1 || modifierMood(group)!=='plain') return;
+  const domain=TYPE_IDENTITIES[star].domain;
+  const concerns:Record<string,Partial<Record<ReadingDomain,string>>>={
+    '13':{money:'愿意多做一点，却容易忽略自己的时间和开销'},
+    '31':{money:'自己的预算没说清，一起用钱时容易各想各的'},
+    '68':{money:'在意能存下多少，也容易忽略买完以后持续的费用'},
+    '86':{money:'价格算得细，付款之后的安排也需要问完整'},
+    '49':{money:'几个机会都想尝试，总投入却容易没有算清'},
+    '94':{money:'重视别人给的推荐，也容易省掉新一次合作的确认'},
+    '81':{work:'备用办法准备得多，主要任务却可能还没顾完'},
+    '24':{work:'想把可能的问题都弄清，反而迟迟没有开始'},
+    '43':{work:'希望条件都明确，事情容易停在选择阶段'},
+    '34':{work:'安排排得细，条件变了却可能还守着旧步骤'},
+    '26':{work:'熟悉步骤做得稳，换一种问题还需要弄懂原因'},
+    '62':{work:'开始有劲头，看不到进展时却容易停下来'},
+    '19':{work:'问题处理好了，别人却未必知道你做过哪些事'},
+    '91':{work:'分工能安排好，也容易把不同做法当成没有照做'},
+    '16':{relationship:'先顾对方的反应，自己的需要容易没讲完整'},
+    '92':{relationship:'客气地听完，容易被对方当成已经同意'},
+    '27':{relationship:'当面愿意听，心里的保留意见却没有说出来'},
+  };
+  for(let i=0;i<group.base.length-1;i++) {
+    const concern=concerns[group.base.slice(i,i+2)]?.[domain];
+    if(concern) return concern+'。';
+  }
+}
+
 export function focusHook(focus: ReturnType<typeof selectReportFocus>, _lead: string) {
+  const specific=pairFocusConcern(focus.star,focus.anchor?.group);
+  if(specific) return specific;
   const mood = focus.mood === "mixed" ? focus.anchor?.group.modifierRuns.some(run=>run.position==="trailing" && run.digits.includes("0")) ? "empty" : "hidden" : focus.mood;
   return focusTrap(focus.star,mood);
 }

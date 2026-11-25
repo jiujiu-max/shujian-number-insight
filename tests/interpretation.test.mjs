@@ -470,7 +470,7 @@ test('work example uses plain words and does not mix job changes with partnershi
 });
 
 test('the revised work scene stays in its matched branch instead of becoming a universal template', () => {
-  const revised = '一起赶的工作还没问清要花多久，你先答应没问题';
+  const revised = '一项需要配合完成的工作还没问清要花多久，你先答应没问题';
   const revisedQuestion = '答应时觉得没问题，真做起来才发现，自己根本忙不过来';
   const workBlock = (phone,age) => render(phone,age).split('id="report-growth"')[1].split('</section>')[0];
   assert.ok(workBlock('18512121212',30).includes(revised));

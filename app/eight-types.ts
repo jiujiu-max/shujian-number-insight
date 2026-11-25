@@ -11,14 +11,14 @@ export const EIGHT_TYPES: Record<PortraitStar, {
   name: string; word: string; star: string; tagline: string; strength: string;
   consultation: string; dimensions: DimensionVector;
 }> = {
-  shengqi: { name: "热心肠", word: "缘", star: "生气", tagline: "朋友多、路子广，就是不好意思拒绝人。", strength: "跟人聊得来，遇到事知道找谁帮忙。", consultation: "人缘好，也不必每个忙都答应。", dimensions: [2, 3, 3, 1, 4] },
-  tianyi: { name: "实在人", word: "情", star: "天医", tagline: "对人掏心掏肺，谈钱却怕伤感情。", strength: "说到做到，肯下功夫，让人信得过。", consultation: "对人实在，也别委屈了自己。", dimensions: [2, 2, 4, 3, 1] },
-  yannian: { name: "主心骨", word: "担", star: "延年", tagline: "有事大家都找你，你却不好意思喊累。", strength: "事情再多也能排好先后，出了问题敢负责。", consultation: "能扛事，也不必什么都自己扛。", dimensions: [4, 2, 1, 4, 1] },
-  fuwei: { name: "稳当派", word: "稳", star: "伏位", tagline: "做熟的事很靠谱，没做过的事总怕出错。", strength: "有耐心，坐得住，别人嫌烦的事也能认真做完。", consultation: "想稳一点，也别一直停在原地。", dimensions: [1, 1, 2, 4, 1] },
-  jueming: { name: "行动派", word: "勇", star: "绝命", tagline: "说干就干，有时答应得太快、接得太多。", strength: "敢试、敢争取，遇到难题不轻易退缩。", consultation: "敢往前走，也值得先想清楚。", dimensions: [4, 3, 1, 2, 2] },
-  wugui: { name: "点子王", word: "思", star: "五鬼", tagline: "新主意一个接一个，就是容易半路换方向。", strength: "学得快，办法多，一条路走不通会换个办法。", consultation: "点子这么多，先聊哪一个值得做下去。", dimensions: [3, 2, 2, 1, 4] },
-  liusha: { name: "细心派", word: "感", star: "六煞", tagline: "别人脸色一变，你就开始想是不是自己做错了。", strength: "心细，会照顾人，小事也愿意替别人多想一步。", consultation: "照顾别人，也别总委屈自己。", dimensions: [1, 2, 4, 2, 3] },
-  huohai: { name: "直性子", word: "言", star: "祸害", tagline: "有话直说，一着急就容易把人得罪了。", strength: "会说、敢开口，能把一件事讲明白。", consultation: "话能讲明白，关系也可以少一点别扭。", dimensions: [3, 4, 2, 2, 1] },
+  shengqi: { name: "热心肠", word: "缘", star: "生气", tagline: "愿意主动联系，也常为了配合别人改变安排。", strength: "愿意听人说话，也会请教有经验的人，把有用的信息分享给别人。", consultation: "人缘好，也不必每个忙都答应。", dimensions: [2, 3, 3, 1, 4] },
+  tianyi: { name: "实在人", word: "情", star: "天医", tagline: "对人掏心掏肺，谈钱却怕伤感情。", strength: "答应的事记在心上，会把细节处理好，让人愿意再次合作。", consultation: "对人实在，也别委屈了自己。", dimensions: [2, 2, 4, 3, 1] },
+  yannian: { name: "主心骨", word: "担", star: "延年", tagline: "有事大家都找你，你却不好意思喊累。", strength: "会分清先后、安排分工，遇到遗漏愿意接着处理。", consultation: "能扛事，也不必什么都自己扛。", dimensions: [4, 2, 1, 4, 1] },
+  fuwei: { name: "稳当派", word: "稳", star: "伏位", tagline: "做熟的事很靠谱，没做过的事总怕出错。", strength: "能耐心处理重复步骤，愿意检查细节，把熟悉的事情做扎实。", consultation: "想稳一点，也别一直停在原地。", dimensions: [1, 1, 2, 4, 1] },
+  jueming: { name: "行动派", word: "勇", star: "绝命", tagline: "说干就干，有时答应得太快、接得太多。", strength: "遇到阻碍愿意先尝试，能让停在讨论里的事情开始有进展。", consultation: "敢往前走，也值得先想清楚。", dimensions: [4, 3, 1, 2, 2] },
+  wugui: { name: "点子王", word: "思", star: "五鬼", tagline: "新主意一个接一个，就是容易半路换方向。", strength: "能发现旧办法的局限，愿意试新工具，也能提出不同的做法。", consultation: "点子这么多，先聊哪一个值得做下去。", dimensions: [3, 2, 2, 1, 4] },
+  liusha: { name: "细心派", word: "感", star: "六煞", tagline: "别人脸色一变，你就开始想是不是自己做错了。", strength: "会留意细节和使用感受，能注意到别人没有明说的不方便。", consultation: "照顾别人，也别总委屈自己。", dimensions: [1, 2, 4, 2, 3] },
+  huohai: { name: "直性子", word: "言", star: "祸害", tagline: "有话直说，一着急就容易把人得罪了。", strength: "愿意把含糊的地方问清，也能组织语言，向别人说明自己的想法。", consultation: "话能讲明白，关系也可以少一点别扭。", dimensions: [3, 4, 2, 2, 1] },
 };
 
 type RadarMatch = { key: PortraitStar; index: number; endIndex: number; strength: number; tail: boolean };

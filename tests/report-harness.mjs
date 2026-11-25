@@ -19,7 +19,7 @@ vm.runInNewContext(ts.transpileModule(combinationSource, {
 const { COMBINATION_READINGS } = combinationSandbox.exports;
 const nodeRequire = createRequire(import.meta.url);
 const modules = { './combination-readings': combinationSandbox.exports };
-for (const name of ['star-portraits', 'triple-readings', 'age-contexts', 'character-readings', 'number-composition', 'course-modifiers', 'composition-readings', 'report-focus', 'report-scenes', 'report-explanations', 'report-conversation', 'eight-types', 'type-share', 'type-report']) {
+for (const name of ['star-portraits', 'triple-readings', 'age-contexts', 'character-readings', 'number-composition', 'course-modifiers', 'composition-readings', 'report-focus', 'report-scenes', 'report-explanations', 'report-conversation', 'report-detail', 'eight-types', 'type-share', 'type-report']) {
   const module = { exports: {}, require: id => modules[id] ?? nodeRequire(id) };
   const text = readFileSync(new URL('../app/' + name + (name === 'type-report' ? '.tsx' : '.ts'), import.meta.url), 'utf8');
   vm.runInNewContext(ts.transpileModule(text, {

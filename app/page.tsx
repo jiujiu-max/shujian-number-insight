@@ -11,9 +11,10 @@ import { compositionReading, compositionAgeExample, type CompositionReading } fr
 import { EIGHT_TYPES, buildTypeRadar, makeTypeShareData } from "./eight-types";
 import { TypeRadar, TypeShare } from "./type-report";
 import { selectReportFocus, focusHook, freshDetails, modifierMood } from "./report-focus";
-import { readingExplanation, domainConsequence, radarTakeaway } from "./report-explanations";
+import { radarTakeaway } from "./report-explanations";
+import { expandedReading } from "./report-detail";
 import { modifierAgeScene } from "./report-scenes";
-import { characterExample, consultationFocus, everydayScene, specificEverydayScene } from "./report-conversation";
+import { characterExample, characterDetail, consultationFocus, everydayScene, specificEverydayScene } from "./report-conversation";
 
 type StarKey =
   | "jueming"
@@ -182,7 +183,7 @@ const STAR_DEFINITIONS: StarDefinition[] = [
     inside: "你对重要的人和事期待不低，只是很少把期待说全。表面像是洒脱，真正受伤时反而容易用“算了”结束对话。",
     interactions: [
       "朋友犹豫时，你常先替大家作决定，事后也愿意承担结果。",
-      "你愿意帮熟人，但不喜欢对方反复试探、临时变卦或把你的付出当成理所当然。",
+      "你愿意帮在意的人，但不喜欢对方反复试探、临时变卦或把你的付出当成理所当然。",
       "发生冲突时，你的情绪和结论来得很快；冷静以后，才会想到刚才有些话可以换一种说法。",
     ],
     work:
@@ -516,9 +517,9 @@ const DIGIT_REPEAT_VOICES: Record<string, DigitRepeatVoice> = {
 const PAIR_VOICES: Record<string, PairVoice> = {
   "13": {
     label: "机会和收入比较容易被人看见",
-    scene: "你不太缺别人介绍机会，客户转介绍、熟人牵线或伴侣支持，往往比自己闷头找更有效。",
+    scene: "你不太缺别人介绍机会，客户转介绍、朋友推荐或伴侣支持，往往比自己闷头找更有效。",
     relationship: "你认准的人，你愿意帮。你也希望自己有事时，对方能搭把手。",
-    money: "赚钱比较看重熟人和老客户。做得让人放心，对方还愿意再找你，也愿意把你介绍给别人。",
+    money: "你看重长期往来和重复合作。做得让人放心，对方还愿意再找你，也愿意把你介绍给别人。",
     healthFocus: ["眼耳鼻等五官", "血液循环", "规律作息"],
   },
   "31": {
@@ -535,19 +536,19 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   },
   "86": {
     label: "判断很有自己的一套，花钱也比较谨慎",
-    scene: "你不容易被几句话说动，做决定前会看专业、风险和长期价值；熟人借钱也未必好开口。",
+    scene: "你不容易被几句话说动，做决定前会看专业、风险和长期价值；借钱的请求也会认真考虑。",
     work: "愿意花时间学一门本事，慢慢把它做熟。别人信得过你的专业，也愿意把需要长期负责的事交给你。",
     money: "花钱谨慎，也希望存下的钱慢慢多起来。不喜欢把钱交出去以后，什么时候能拿回来都由别人说了算。",
   },
   "49": {
     label: "信息一来就能想到怎么变成机会",
-    scene: "你点子多、会来事，也容易从网络、消息和人脉里找到财路；只是方向变得也快。",
+    scene: "你点子多，愿意了解别人的需要，也容易从网络、消息和人脉里找到财路；只是方向变得也快。",
     work: "对新消息、新做法反应快。别人还没留意，你已经想到可以怎样用到工作里。",
     money: "想快点看到收入，有几个机会就想一起试。钱分着投了出去，哪一笔真赚到钱却不一定算得清。",
   },
   "94": {
     label: "会处理人和事，也容易被更多人看见",
-    scene: "你感知力强，遇到问题知道找谁、怎么转圜；外出、转介绍或公开表达常能带来机会。",
+    scene: "你会留意对方的需要，愿意主动联系和介绍，也会调整说法，让彼此更容易理解。",
     work: "跟人打交道有办法。遇到麻烦，知道该找谁帮忙，也知道话怎么说对方愿意听。",
     money: "别人听过你、跟你合作过，才更愿意把客户介绍给你。你比较看重口碑，也愿意花时间维护这些来往。",
   },
@@ -561,7 +562,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "会经营关系，也会给自己留一点余地",
     scene: "别人有事容易想到你，你也懂得顺着场面把事情办成；嘴上答应和心里真实想法偶尔并不完全一样。",
     relationship: "跟人相处会留面子。心里有不同意见，也不一定当场说出来。",
-    money: "熟人和客户愿意介绍机会。你也会给自己留些钱，不想把手头的钱一次全花出去。",
+    money: "已有的合作和客户推荐能带来新的联系。你也会给自己留些钱，不想把手头的钱一次全花出去。",
   },
 
   "12": {
@@ -656,20 +657,20 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "付出不少，却容易碰到回报不对等",
     scene: "你会替人做事，也容易相信口头关系；事后发现资源没兑现、钱没收回，才开始觉得不值。",
     relationship: "别人说会帮忙，你容易当真。等到自己真有事，对方却一直推，你才觉得这份交情不值。",
-    money: "熟人找你借钱、请你先付一下，你容易答应。没问清什么时候还，后来再催就不好意思了。",
+    money: "朋友临时借钱、一起消费时请你先付一下，你容易答应。没问清什么时候还，后来再催就不好意思了。",
   },
 
   "14": {
-    label: "营销能力强，会来事，也会把新东西讲得让人想听",
+    label: "会考虑对方关心什么，再介绍新东西的用途",
     scene: "你点子多，喜欢新鲜事，也习惯自己研究摸索。优点是会营销、会找话题；容易吃亏在乱花钱、冲动下单，或轻信别人画的饼。",
     work: "喜欢研究新东西，也会找话题。介绍产品、想活动点子、做内容时，比较知道怎样让人愿意继续听。",
-    money: "可以赚到钱，但钱容易花在兴趣、新项目和人情上，也要防冲动消费和被骗。",
+    money: "愿意为兴趣和新的尝试花钱，听到推荐时也容易冲动下单。",
   },
   "41": {
     label: "人脉和资源多，知道怎样花小力气办成事",
-    scene: "你会连接人、找资源，也有自己的创新办法；很多机会不是硬拼出来，而是你知道找谁。",
-    work: "遇到问题，不会只顾自己硬干。你知道谁懂、谁能帮忙，也愿意把合适的人找来一起做。",
-    money: "会找人一起做点小生意，也不想一开始就投太多。只是跟熟人合作，钱怎么分、各出多少，要问清楚才不容易闹别扭。",
+    scene: "碰到不熟悉的事，你会向做过的人请教，再联系能提供相应帮助的人一起处理。",
+    work: "遇到问题，不会只顾自己硬干。你会先问清需要哪方面经验，再联系能提供相应帮助的人一起做。",
+    money: "会找人一起做点小生意，也不想一开始就投太多。只是跟人一起出钱做事，钱怎么分、各出多少，要问清楚才不容易闹别扭。",
   },
   "67": {
     label: "讲面子、愿意撑场，钱也容易留在外面",
@@ -685,7 +686,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   },
   "39": {
     label: "行动快、讲效率，耐心却不算多",
-    scene: "熟人一喊你就能动起来，做事不喜欢慢吞吞；别人跟不上时，你的语气也会跟着急。",
+    scene: "有人提议你就愿意行动，做事不喜欢慢吞吞；别人跟不上时，你的语气也会跟着急。",
     work: "反应快，有事能马上去做。碰到需要现场安排、临时处理的事，你不太怯场，就是容易嫌别人动作慢。",
     healthFocus: ["血液循环", "活动恢复", "规律休息"],
   },
@@ -757,12 +758,12 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "情商高、适应快，换到哪里都能找到相处方式",
     scene: "你会看场合、懂分寸，外表给人开朗好相处的感觉；真正的判断却比别人想得更精。",
     work: "会看场合，也懂得跟不同的人说不同的话。做服务、销售或跟客户打交道时，不太容易冷场。",
-    relationship: "你会来事，跟谁都能聊几句。有时明明不同意，为了不扫兴，还是顺着别人说。",
+    relationship: "你会留意现场气氛，愿意听不同的人说话。有时明明不同意，为了不扫兴，还是顺着别人说。",
   },
 
   "17": {
     label: "朋友资源不少，原则却容易被人情带着走",
-    scene: "你会说也会来事，但熟人一开口不太好拒绝；钱和精力容易花在并不值得的关系上。",
+    scene: "你愿意表达，也会考虑现场气氛，但别人的请求不太好拒绝；钱和精力容易花在并不值得的关系上。",
     money: "朋友开口时不好拒绝，请客、借钱、帮着付款都可能先答应。可轮到自己需要用钱，就觉得手头不够了。",
   },
   "71": {
@@ -778,7 +779,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   },
   "98": {
     label: "很快能跟人熟起来，也容易让人记住",
-    scene: "你适应环境快、会处理关系，领导和熟人也比较愿意给机会；关键是别让表面热络替代真正交付。",
+    scene: "你适应环境快、会处理关系，工作中也愿意主动争取机会；关键是别让表面热络替代真正交付。",
     work: "换个环境也能很快跟人熟起来。别人愿意听你说，但答应的事最后有没有做好，也会影响他下次还找不找你。",
   },
   "64": {
@@ -809,7 +810,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "19": {
     label: "会搞关系、情商高，平时低调，做事有专业能力",
     scene: "你擅长社交，知道和不同的人怎么相处。你爱面子、自尊心强，感觉不被尊重时脾气来得快，过去得也快。",
-    relationship: "平时会来事，也给人留面子。别人当众否定你、让你下不来台时，说话就容易变冲。",
+    relationship: "平时提意见会考虑场合，不想让人当众难堪。别人当众否定你、让你下不来台时，说话就容易变冲。",
     work: "平时不爱张扬，遇到难题却有办法。自己能处理的会做好，需要找人帮忙的也知道该找谁。",
     healthFocus: ["心脏与循环", "情绪起伏", "睡眠"],
   },
@@ -820,7 +821,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     healthFocus: ["腰椎与颈椎", "泌尿系统", "睡眠"],
   },
   "78": {
-    label: "口才好、讲原则，熟人面前很放得开",
+    label: "口才好、讲原则，跟朋友相处时很放得开",
     scene: "你能讲、会开玩笑，也有务实的一面；认定规则以后，不太喜欢别人临时变。",
     work: "有一门拿得出手的本事，也愿意讲给别人听。教人、开会讲事情时能说清楚，就是不喜欢定好的事临时又改。",
     healthFocus: ["口腔与牙齿", "鼻部与呼吸", "规律作息"],
@@ -1004,7 +1005,7 @@ const STAR_LENSES: Record<StarKey, StarLens> = {
     risk: "越怕关系变差，越容易先忍着；忍久以后会突然冷下来，让对方不知道原因。",
     relationship: "你会看脸色，也懂得给人台阶。可别人一句无心的话，你可能回去还在想，又不好意思直接问。",
     work: "服务、平台、公关、销售、审美、美容、中介等需要理解人的工作更容易积累口碑。",
-    money: "你会跟客户打交道，靠服务和熟人介绍能接到生意。钱也容易花在请客送礼、吃穿打扮和照顾别人上。",
+    money: "你会跟客户打交道，服务做得好，客户可能再次来找，也可能推荐给别人。钱也容易花在请客送礼、吃穿打扮和照顾别人上。",
     health: "情绪和关系一乱，饮食与作息也容易受影响，资料提醒留意脾胃、肠胃和皮肤。",
     healthFocus: ["脾胃与肠胃", "皮肤状态", "情绪压力", "饮食规律"],
   },
@@ -1035,9 +1036,9 @@ const STAR_LENSES: Record<StarKey, StarLens> = {
     ending: "想把机会、钱和关系都稳定下来",
     strength: "你理解力好、待人真诚，容易得到客户、朋友或贵人的信任。",
     risk: "你会因为情面、信任或看好一个人而先付出，最后可能变成付出比得到多。",
-    relationship: "你重情义，熟人有事愿意帮。但有时你帮了一次，对方以后就都来找你，不帮反倒不好意思。",
-    work: "你做事让人放心，老客户愿意再找你，也愿意介绍人来。只是熟人来请你帮忙时，你不太好意思谈钱。",
-    money: "你看重稳定收入，也有存钱的打算。钱和机会多靠老客户、熟人介绍和长期合作慢慢积累。",
+    relationship: "你重情义，看到朋友有困难愿意帮。但有时你帮了一次，对方以后就都来找你，不帮反倒不好意思。",
+    work: "你做事让人放心，老客户愿意再找你，也愿意介绍人来。只是再次合作时，你不太好意思谈钱。",
+    money: "你看重稳定收入，也有存钱的打算。你愿意用稳定的服务和持续合作，逐渐积累收入。",
     health: "照顾别人而忽略自己时，资料提醒留意血压、循环、头发皮肤以及眼耳鼻等五官。",
     healthFocus: ["血压管理", "血液循环", "头发与皮肤", "眼耳鼻等五官"],
   },
@@ -1211,9 +1212,9 @@ const SEQUENCE_RULES: SequenceRule[] = [
     headline: "你会搞关系、情商高，平时低调，关键时候很会办事",
     title: "有专业能力，也很爱面子、很看重别人是否尊重你",
     detail: "你擅长社交，知道和不同的人怎么相处。你平时比较低调，真正要解决问题时有专业能力。自尊心强，感觉不被尊重时脾气来得快，过去得也快。传统资料提示重点留意心脏、血压和血液循环。",
-    basis: "119由11伏位接19延年：先观察、先收着，确认以后再拿出能力和主见，所以常表现为平时低调，关键时候会来事、能处理关系。",
+    basis: "119由11伏位接19延年：先观察、先收着，确认以后再拿出能力和主见，所以常表现为平时低调，遇事愿意出面协调、说明分工。",
     tone: "mixed",
-    relationship: "你会来事，也很爱面子。平时好说话，别人当众不给你面子时，脾气就上来了，过后又消得快。",
+    relationship: "你会考虑场合，也在意自己的意见是否被尊重。平时好说话，别人当众不给你面子时，脾气就上来了，过后又消得快。",
     work: "你平时低调，办事有本事。知道该找谁、话该怎么说，真有难题时能帮人解决。",
     healthFocus: ["心脏与循环", "情绪起伏", "睡眠"],
   },
@@ -1232,7 +1233,7 @@ const SEQUENCE_RULES: SequenceRule[] = [
   },
   {
     pattern: "14",
-    headline: "你营销能力强、会来事，也很会把新点子讲给别人听",
+    headline: "你愿意介绍产品，能听出对方关心什么，也很会把新点子讲给别人听",
     title: "点子多、喜欢新鲜事，很多东西会自己研究摸索",
     detail: "你会找话题、会说好听的话，也容易让别人愿意继续听。优点是营销和创意强；容易吃亏在乱花钱、冲动消费，或相信别人说得很好却没有核实。",
     basis: "14在八星表中归为生气；案例里进一步落到营销、人缘、新鲜感和自我摸索。优势在会连接人和机会，风险在钱也容易跟着兴趣流出去。",
@@ -1481,7 +1482,7 @@ const FLOW_RULES: Partial<Record<`${StarKey}>${StarKey}`, string>> = {
   "yannian>fuwei": "你的能力和责任会持续很久，工作也容易变成反复收尾；别人下班了，你心里还没真正结束。",
   "tianyi>fuwei": "你看重稳定，也有持续积累的意识；顾虑太多时，会变成手里有资源，却迟迟不敢动用。",
   "wugui>fuwei": "一个念头会在你心里想很多遍，越想越细；如果后面没有行动力，准备很久也可能没有真正开始。",
-  "huohai>fuwei": "熟人面前你会一直说、一直解释，陌生场合却可能先顾虑；身体不舒服时也容易一边担心、一边拖着。",
+  "huohai>fuwei": "跟朋友相处时你会一直说、一直解释，陌生场合却可能先顾虑；身体不舒服时也容易一边担心、一边拖着。",
   "liusha>fuwei": "你先感觉到关系里的变化，之后却反复放在心里不说；时间久了，小事也会变成持续的情绪压力。",
   "jueming>fuwei": "你本来想快点解决，真正花钱或行动时却又出现顾虑；最后常变成一笔‘不得不花’的钱或迟迟未完成的决定。",
   "fuwei>fuwei": "同一类顾虑被连续放大，做事更稳，也更容易拖延、循规蹈矩和反复确认。",
@@ -1542,7 +1543,7 @@ const FLOW_TITLES: Partial<Record<`${StarKey}>${StarKey}`, string>> = {
   "yannian>fuwei": "事情做完了，责任却还一直留在你身上",
   "tianyi>fuwei": "手里不是没资源，是迟迟不敢真正动用",
   "wugui>fuwei": "准备得越来越细，行动却越来越晚",
-  "huohai>fuwei": "熟人面前话很多，真正的担心却一直没说",
+  "huohai>fuwei": "跟朋友相处时话很多，真正的担心却一直没说",
   "liusha>fuwei": "一点不舒服，会在心里反复很久",
   "jueming>fuwei": "本来想快点解决，最后却卡在不得不做的决定里",
   "tianyi>huohai": "已经得到一些了，心里还是觉得不够",
@@ -3012,7 +3013,7 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
       liusha: ["小组讨论时怕扫大家的兴。自己明明有别的想法，也不好意思提。", "朋友买新衣、约聚会，你也不想落下，花完才发现超了预算。", "明明想在家休息，朋友一句“就差你了”，你又去了。"],
       huohai: ["敢发言，也有想法。面试时一着急，没听完问题就开始回答。", "嘴上说“这次我请”，付完钱才发现，后面几天得省着花。", "本来只想解释一句，越说越急，最后反而吵了起来。"],
       yannian: ["小组作业不放心交给别人，改着改着，大半都成了你做。", "刚赚到一点钱，就想着请客、分担开销，自己想买的反而舍不得买。", "小组里有人没做完，最后又来找你帮忙，自己的事做完了还得继续忙。"],
-      tianyi: ["肯跟着前辈学。熟人介绍实习时，也容易没仔细了解就去了。", "朋友说“你先帮我付”，你就付了，过后又不好意思提醒还钱。", "朋友有事你很上心，轮到自己想找人聊聊，却怕打扰别人。"],
+      tianyi: ["肯跟着前辈学。有人推荐实习时，也容易没仔细了解就去了。", "朋友说“你先帮我付”，你就付了，过后又不好意思提醒还钱。", "朋友有事你很上心，轮到自己想找人聊聊，却怕打扰别人。"],
       shengqi: ["认识的人能给你介绍机会，但别人说哪个好，你就想跟着试。", "吃饭、奶茶、短途出游，每笔不多，加起来却花掉不少生活费。", "人缘不错，朋友一找你就回应，自己的作业却拖到了晚上。"],
       fuwei: ["简历改了一遍又一遍，总觉得还不够好，结果一直没投。", "买东西舍不得多花，却会因为“最后一天优惠”买下并不需要的东西。", "刚认识时话不多，熟了才放得开。讨论时有想法，也常怕说错。"],
     },
@@ -3024,14 +3025,14 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     moneyCheck: "工资涨了，房租、吃饭、买东西也花得更多。每个月真正存下的钱，有没有变多？",
     moneyHeading: "收入在增加，钱有没有留下来",
     socialPeople: "同事、朋友和合作伙伴",
-    socialQuestion: "同事或熟人找你帮忙，你会先问清楚，还是怕不好相处就答应？",
+    socialQuestion: "同事请你配合工作，你会先问清楚，还是怕不好相处就答应？",
     scenes: {
       jueming: ["你做事有冲劲，但有时答应得太快。还没问清要做多少活、能拿多少钱，就先接下来了。", "想快点多赚些钱，听说项目不错就想投，钱交了才开始问细节。", "做事着急，交代完就想要结果，对方还没做完，你已经催了几次。"],
       wugui: ["点子多，学东西也快。但一个方向刚有起色，又想换个新的试试。", "副业、课程、项目都花了钱，忙了一圈，却没多赚多少。", "同事随口一句话，你会琢磨很久，却没有当面问清楚。"],
       liusha: ["会说话，客户愿意找你。可一谈加钱、少接点活，就不好意思开口。", "想穿好一点、吃好一点，月底还完信用卡，工资就剩不多了。", "怕同事觉得你不好相处，明明忙不过来，还说“没事，我来吧”。"],
       huohai: ["能说，也敢争取。吃亏时急着讲道理，语气太冲，别人反而不肯听。", "一起做事时说“钱好商量”，真到要掏钱，谁也不愿意多出。", "明明是在商量事情，越说越想证明自己对，最后谁也不让谁。"],
       yannian: ["活干得好，找你的人就更多。别人的事做完了，自己的工作还得加班补。", "想多赚一点，先花钱买设备、学技能。收入还没增加，开销已经上去了。", "帮别人收拾过几次烂摊子，后来再出问题，大家又来找你了。"],
-      tianyi: ["熟人愿意给你介绍工作，你也不想让对方失望。有时连工资、休息时间都没问清，就先答应了。", "借钱、垫钱时很爽快，自己要用钱时，却不好意思催人还。", "别人说“下次帮你”，你会当真，真有事找他时才发现只是客气话。"],
+      tianyi: ["有人愿意给你介绍工作，你也不想让对方失望。有时连工资、休息时间都没问清，就先答应了。", "借钱、垫钱时很爽快，自己要用钱时，却不好意思催人还。", "别人说“下次帮你”，你会当真，真有事找他时才发现只是客气话。"],
       shengqi: ["朋友愿意给你介绍机会，这个也不错、那个也想试，反而定不下来。", "聚餐、应酬、随礼，单看都不多，月底一算，又没存下钱。", "谁找你帮忙都不想拒绝，忙完别人的事，自己的正事又拖了。"],
       fuwei: ["想加薪、想换工作，已经想了很久。可真要开口、投简历时，又觉得再等等。", "总想着以后多赚一点，买过的课还没学完，想做的副业也一直没开始。", "活分得不公平，你嘴上没说什么，心里却越做越委屈。"],
     },
@@ -3042,15 +3043,15 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     workTitle: "事情越接越多，是没人帮你，还是交给别人又不放心，最后还是自己做？",
     moneyCheck: "手里的钱够不够用？有没有钱借出去了、替人垫了，或者投进项目，一时拿不回来？",
     moneyHeading: "钱赚了不少，为什么手头还是紧",
-    socialPeople: "工作往来、老朋友与熟人",
-    socialQuestion: "熟人一句“你有经验，帮忙看看”，会不会最后变成整件事都由你负责？",
+    socialPeople: "合作分工与日常相处",
+    socialQuestion: "对方一句“你有经验，帮忙看看”，会不会最后变成整件事都由你负责？",
     scenes: {
       jueming: ["有经验，敢拿主意。但一心想多做点，一下接太多事，最后忙不过来。", "看好的事舍得投钱，却容易越投越多，后来才发现超出了原来的预算。", "觉得自己的办法管用，别人提不同意见时，你会先想说服他。"],
       wugui: ["遇到难题有办法，可几件事一起做，每件都差一点，没一件彻底做完。", "钱投在不同项目里，看着有钱，真要急用，却一笔也拿不出来。", "合作时对方话没说清，你就开始猜：是不是还有什么瞒着我？"],
       liusha: ["能把客户、同事都照顾好，但这个要改、那个要加，最后最累的是你。", "对自己舍不得，对人情、面子却不好省，钱就这样一笔笔花了出去。", "越熟的人，越不好意思把话说透，嘴上说没事，心里一直记着。"],
       huohai: ["遇到问题敢出面。一忙就急着安排，没问清要求，做完又得重来。", "一起做事前，没说清各出多少钱、出了问题谁来管。真出了事，又变成你多花钱。", "本来是好心提醒，话说得太直，对方没领情，你还觉得委屈。"],
       yannian: ["大事小事都能顶上，可什么都要自己过一遍，下了班也放不下。", "自己的开销要管，别人钱不够也来找你，赚得不算少，剩下却不多。", "大家觉得你有办法，遇事都找你。你明明很累，还是说“我来想办法”。"],
-      tianyi: ["老客户愿意找你，可越熟越不好意思说清哪些归你做。对方临时多提要求，你也常接下了。", "熟人借的钱、替合作方垫的钱，一拖再拖，自己要用时才着急。", "念着多年的交情，对方总来找你帮忙，你有事却常常找不到他。"],
+      tianyi: ["老客户愿意找你，可越熟越不好意思说清哪些归你做。对方临时多提要求，你也常接下了。", "借出去的钱、替合作方垫的钱，一拖再拖，自己要用时才着急。", "念着多年的交情，对方总来找你帮忙，你有事却常常找不到他。"],
       shengqi: ["老朋友能带来生意和机会，但答应帮的忙太多，自己的事反而耽误了。", "饭局、随礼、帮朋友凑钱，哪笔都不好推，一年算下来真不少。", "别人有矛盾，你去劝和，最后两边都找你诉苦、让你帮忙。"],
       fuwei: ["熟悉的工作做得稳。想换个做法，又担心不如以前，就一直拖着没试。", "每个月还款、付账单，钱照常往外花。月底一看，又没存下多少，却一直没算钱都花在哪了。", "不想为一点事伤了多年交情，不满意也忍着，下次对方还是照旧。"],
     },
@@ -3064,13 +3065,13 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     socialPeople: "工作伙伴、老朋友和日常往来",
     socialQuestion: "老同事、朋友找你帮忙，说好只帮一次，后来会不会又一直来找你？",
     scenes: {
-      jueming: ["做事不拖拉，想到就去做。但一天接了太多事，忙到晚上还没歇下。", "听到赚钱机会还想试一把，先想能赚多少，没细算要拿出多少积蓄。", "熟人问你意见，你很快就拿了主意，却可能没问他自己想怎么做。"],
+      jueming: ["做事不拖拉，想到就去做。但一天接了太多事，忙到晚上还没歇下。", "听到赚钱机会还想试一把，先想能赚多少，没细算要拿出多少积蓄。", "朋友问你意见，你很快就拿了主意，却可能没问他自己想怎么做。"],
       wugui: ["想学的、想做的都不少，今天忙这个、明天试那个，一件事总做不完。", "听说这个项目好、那个能赚钱，就想拿点钱试试，试的次数多了也不少。", "别人一句“回头再说”，你会想很久：到底是答应了，还是不想帮？"],
-      liusha: ["别人说哪天方便，你都尽量配合，自己想做的事只能往后推。", "给别人买东西舍得，轮到自己想买，又觉得算了，能省就省。", "熟人一开口你就帮，忙完却发现，自己的事还没人搭把手。"],
-      huohai: ["有经验，也愿意教。说了几遍对方还没做好，你就容易急、说话重。", "熟人说“一起出点钱”，你怕扫兴先答应了，回家才觉得这钱不该花。", "好心教别人怎么做，可一句“听我的就对了”，反而让人不愿听。"],
+      liusha: ["别人说哪天方便，你都尽量配合，自己想做的事只能往后推。", "给别人买东西舍得，轮到自己想买，又觉得算了，能省就省。", "别人一开口你就帮，忙完却发现，自己的事还没人搭把手。"],
+      huohai: ["有经验，也愿意教。说了几遍对方还没做好，你就容易急、说话重。", "聚会时有人说“一起出点钱”，你怕扫兴先答应了，回家才觉得这钱不该花。", "好心教别人怎么做，可一句“听我的就对了”，反而让人不愿听。"],
       yannian: ["交给别人的事总不放心，看他做得慢、做得不对，又拿回来自己做。", "别人手头紧，你想着能帮就帮，帮着帮着，自己的存款也少了。", "别人有事就叫你，你习惯随叫随到，难得想歇一天也有人来找。"],
       tianyi: ["老同事、老客户信得过你。说好只帮着看看，后来却变成全得你管。", "多年的朋友借钱，你不好意思问借多久、怎么还，过后又不好催。", "老朋友有事，你不想让他失望，哪怕自己不方便，也先答应下来。"],
-      shengqi: ["朋友一约就想去，聚会活动排多了，原本要办的事又得改天。", "聚会、送礼、帮熟人付点钱，每次不多，一个月下来却超了预算。", "谁家的事都愿意帮着操心，自己的事没办完，还惦记着别人的。"],
+      shengqi: ["朋友一约就想去，聚会活动排多了，原本要办的事又得改天。", "聚会、送礼、替人垫付，每次不多，一个月下来却超了预算。", "谁家的事都愿意帮着操心，自己的事没办完，还惦记着别人的。"],
       fuwei: ["用惯了老办法，就不想换。新东西也想学，却总说“有空再弄”。", "每个月 APP 会员、套餐自动续费的钱，没仔细算过。有些已经不常用了，却一直没关掉续费。", "不喜欢的聚会照样去，不愿帮的忙照样接，就怕拒绝了以后不好见面。"],
     },
   },
@@ -3088,7 +3089,7 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
       liusha: ["约活动总先问别人方便不方便，大家定好了，你再改自己的时间。", "送礼、给身边人买东西不心疼，自己需要的东西却总说下次再买。", "明明需要人陪着办点事，嘴上却说“我自己可以”，怕麻烦别人。"],
       huohai: ["愿意把经验讲给人听，对方一说不一样，你就想马上解释清楚。", "聊天时答应请客、帮忙买东西，真付钱时才发现比想的贵不少。", "本来是关心，开口却成了“你怎么又这样”，对方听着就不高兴了。"],
       yannian: ["自己的事办完了，还惦记别人弄得怎么样。人坐下了，心里还在操心。", "看到别人有难处，就想自己少花一点也要帮，留给自己的钱越来越少。", "看别人没做好就想替他做完，帮了忙，还可能被说管得太多。"],
-      tianyi: ["熟人愿意找你请教，你也乐意教，只是答应时忘了自己还有别的事。", "老朋友说先替他付一下，你就付了，之后又怕问还钱伤了交情。", "老朋友的事你记得清楚，也盼着自己说话时，对方能耐心听完。"],
+      tianyi: ["有人愿意找你请教，你也乐意教，只是答应时忘了自己还有别的事。", "老朋友说先替他付一下，你就付了，之后又怕问还钱伤了交情。", "老朋友的事你记得清楚，也盼着自己说话时，对方能耐心听完。"],
       shengqi: ["朋友邻里爱叫上你一起活动，约得多了，自己原本想做的事又没做。", "今天帮人垫一点，明天请人吃个饭，月底才发现比平时多花了不少。", "和大家在一起很随和，不喜欢的活动也说“都行”，怕大家扫兴。"],
       fuwei: ["日子过得有规律。朋友叫你参加新活动，又怕不熟悉，想了几次都没去。", "买东西时没弄懂页面上写的什么，也不好意思多问。别人让点哪里，就跟着点了。", "有事想请人帮忙，又怕打扰，总等别人先问，你才肯说。"],
     },
@@ -3123,19 +3124,22 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   const key = focus.star;
   const portrait = STAR_PORTRAITS[key][domain];
   const mood = modifierMood(entry?.group);
-  const example = specificEverydayScene(entry?.group,domain,age) ?? modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age);
+  const expanded = expandedReading(key,entry?.group,domain,age);
   const lead = insight.lead ?? portrait.lead;
-  const details = freshDetails(insight.text,[lead,example]);
-  const explanation = readingExplanation(key,mood,domain);
+  const example = expanded?.example ?? specificEverydayScene(entry?.group,domain,age)
+    ?? modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age);
+  // A full explanation develops the reason and tradeoff. Do not stack the
+  // former generic scene and consequence around an almost identical example.
+  const sourceDetails = freshDetails(insight.text,[lead,example]);
+  const specificSource = entry?.composition && (mood==='mixed'
+    || entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2);
+  const paragraphs = specificSource ? sourceDetails
+    : expanded?.explanation ? [expanded.explanation] : sourceDetails;
   return {
-    lead,
-    text: insight.text,
-    // A full scene already explains the generic trait. Keep distinct source
-    // details, but don't repeat the same point in lead + filler + example.
-    paragraphs: details.length ? details : example.length < 55 && explanation ? [explanation] : [],
+    lead, text: insight.text, paragraphs,
     question: insight.question ?? portrait.question,
     example, mood, pattern:entry?.group.raw,
-    consequence: domainConsequence(key,mood,domain,entry?.group),
+    consequence: '',
   };
 }
 
@@ -3159,7 +3163,7 @@ function reportSupplement(analysis: Analysis, domain: ReadingDomain, age: number
     const key = entry.group.stars[0], mood = modifierMood(entry.group);
     const specific = ['856','154','145','959'].includes(entry.group.raw) || entry.group.base==='99' || entry.group.base==='82' && mood==='plain';
     const detail = freshDetails(entry.text,[entry.lead,primary.lead,primary.example,...primary.paragraphs]).join('');
-    const example = specificEverydayScene(entry.group,domain,age) ?? (specific || mood==='mixed' ? detail
+    const example = expandedReading(key,entry.group,domain,age)?.example ?? specificEverydayScene(entry.group,domain,age) ?? (specific || mood==='mixed' ? detail
       : modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age));
     if(!example || example===primary.example || primary.paragraphs.some(p=>p.includes(example))) continue;
     return {pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,lead:entry.lead,example};
@@ -3177,9 +3181,10 @@ function ResultSectionV3({ analysis, age, gender }: {
   const stage = getAgeStageContext(age);
   const focus = selectReportFocus(analysis);
   const anchor = focusedEntry(analysis,"work");
-  const character = buildCharacterProfile(anchor ? {...analysis,
+  const characterSource = buildCharacterProfile(anchor ? {...analysis,
     work:{...analysis.work,ordered:[anchor]},relationship:{...analysis.relationship,ordered:[focusedEntry(analysis,"relationship")!]}}
     : analysis);
+  const character = characterDetail(focus.star,anchor?.group) ?? characterSource;
   const work = reportReading(analysis, "work", age);
   const money = reportReading(analysis, "money", age);
   const social = reportReading(analysis, "relationship", age);
@@ -3218,7 +3223,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           <div className="type-title-row"><h2 id="report-title">{type.name}</h2><span className="type-seal" aria-hidden="true">{type.word}</span></div>
           <p className="type-role">{focus.role}</p>
           <p className="type-tagline">{focus.motto}</p>
-          <div className="type-star-line"><span>{type.star} · 主类型</span>{analysis.secondary && <span>也有一点{EIGHT_TYPES[analysis.secondary.key].name}的特点</span>}</div>
+          <div className="type-star-line"><span>{type.star} · 主类型</span>{analysis.secondary && <span>也有{EIGHT_TYPES[analysis.secondary.key].name}的一面</span>}</div>
           <div className="type-key-points">
             <div><span>你的长处</span><p>{type.strength}</p></div>
             <div><span>吃亏点</span><p>{watchout}</p></div>
@@ -3228,7 +3233,7 @@ function ResultSectionV3({ analysis, age, gender }: {
         <TypeRadar radar={radar} takeaway={radarTakeaway(focus.star, work.mood, anchor?.group, work.lead)} />
         <p className="type-cultural-note">传统数字文化画像 · 用来观察自己，不是心理测评或事实判定。</p>
       </section>
-      <div className="type-reading-intro"><span>你擅长什么，又容易在哪吃亏？</span><p>先看性格，再看做事、用钱、跟人相处。每一部分都说具体一点。</p></div>
+      <div className="type-reading-intro"><span>你擅长什么，又容易在哪吃亏？</span><p>性格看在意什么，做事看怎样判断，用钱看取舍，相处看彼此的期待。</p></div>
 
       <nav className="topic-nav" aria-label="报告分类导航">
         {topics.map(([label, id], index) => <a href={`#report-${id}`} key={id}><b>{String(index + 1).padStart(2, "0")}</b><span>{label}</span></a>)}
@@ -3246,7 +3251,7 @@ function ResultSectionV3({ analysis, age, gender }: {
       <section className="topic-section growth-topic" id="report-growth">
         <div className="topic-heading"><span>02 · {stage.workLabel}</span><h3>{age >= 65 ? "平时做事，你总在操心什么" : "做事有什么长处，又容易吃什么亏"}</h3></div>
         <div className="growth-summary">
-          <article><span>做事的长处与难处</span><strong>{work.lead}</strong>
+          <article><span>做事时的判断和习惯</span><strong>{work.lead}</strong>
             {work.paragraphs[0] && <p className="reading-explanation">{work.paragraphs[0]}</p>}
             {work.paragraphs.length > 1 && <details className="reading-details on-dark"><summary>再说具体一点</summary>{work.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
@@ -3257,7 +3262,7 @@ function ResultSectionV3({ analysis, age, gender }: {
       </section>
 
       <section className="topic-section" id="report-wealth">
-        <div className="topic-heading"><span>03 · 财路与用钱</span><h3>花钱、存钱，你有什么习惯</h3></div>
+        <div className="topic-heading"><span>03 · 财路与用钱</span><h3>钱为什么这样花，又容易忽略什么</h3></div>
         <div className="wealth-route">
           <article><span>用钱的习惯</span><strong>{money.lead}</strong>
             {money.paragraphs[0] && <p className="reading-explanation">{money.paragraphs[0]}</p>}

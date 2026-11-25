@@ -184,7 +184,7 @@ test('the visible report does not repeat the former 8336 sentence four times',()
   const plain=html.replace(/<dialog\b[^>]*>[\s\S]*?<\/dialog>/g,'').replace(/<details\b[^>]*>[\s\S]*?<\/details>/g,'').replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g,'').replace(/<[^>]+>/g,'');
   // Added one visible explanation per domain plus a conditional progression;
   // keep that extra substance bounded, rather than hiding everything again.
-  assert.ok(plain.length<1600,plain.length);
+  assert.ok(plain.length<2200,plain.length);
 });
 
 test('cover concern, consultation and share use the same primary focus without personal data',()=>{
@@ -214,7 +214,7 @@ test('new everyday names replace card metaphors throughout the rendered report',
   }
 });
 
-test('new explanations elaborate actual modes without replacing specific source detail',()=>{
+test('expanded explanations remain mode-specific and retain mixed and repeated-zero source details',()=>{
   const {readingExplanation}=modules['./report-explanations'];
   for(const star of Object.keys(TYPE_IDENTITIES))for(const domain of ['work','money','relationship']){
     const variants=['plain','hidden','empty'].map(mood=>readingExplanation(star,mood,domain));
@@ -227,8 +227,9 @@ test('new explanations elaborate actual modes without replacing specific source 
     for(const domain of ['work','money','relationship']){
       const r=reportReading(a,domain,30);
       const original=freshDetails(r.text,[r.lead,r.example]);
-      if(original.length) assert.deepEqual([...r.paragraphs],[...original]);
-      else if(r.mood!=='mixed' && r.example.length<55) assert.ok(r.paragraphs.length);
+      if(r.mood==='mixed' || r.pattern.includes('00') && r.pattern.includes('82')) {
+        if(original.length) assert.deepEqual([...r.paragraphs],[...original]);
+      } else assert.ok(r.paragraphs.length,phone+' '+domain);
     }
   }
 });
@@ -263,4 +264,46 @@ test('conditional progression preserves mixed and specific-case boundaries',()=>
     assert.doesNotMatch(block(render('18318002957'),section),/如果一直这样/);
   }
   assert.doesNotMatch(render('18318002957'),/明年财运|一定会破财|保证转运/);
+});
+
+
+test('concrete pair details follow decisions and client work instead of universal rescue or lending examples',()=>{
+  const {pairDetail,expandedReading}=modules['./report-detail'];
+  const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
+  const cautious=reportReading(analysePhone('18543434343'),'work',30);
+  assert.match(cautious.example,/选择|要求/);
+  assert.doesNotMatch(cautious.example,/那份也接过来|加班|替他/);
+  const clients=reportReading(analysePhone('18513131313'),'money',30);
+  assert.match(clients.example,/回头客|订单|服务/);
+  assert.doesNotMatch(clients.example,/借|催|还款/);
+  assert.notEqual(pairDetail(group('13'),'money',30).example,pairDetail(group('31'),'money',30).example);
+  assert.equal(pairDetail(group('104'),'work',30),undefined);
+  assert.equal(pairDetail(group('154'),'work',30),undefined);
+  assert.equal(expandedReading('tianyi',group('1053'),'money',30),undefined);
+  for(const age of ages){
+    const repeated=expandedReading('shengqi',group('8002'),'money',age);
+    assert.match(repeated.example,/前一笔.*又付了一次/);
+    assert.doesNotMatch(repeated.example,/省了不少事/);
+  }
+});
+
+test('whole reports use clear expressions without acquaintance placeholders across ages',()=>{
+  for(const phone of copyRegressionPhones)for(const age of ages){
+    const html=render(phone,age);
+    assert.doesNotMatch(html,/熟人|会来事|路子广|遇到事知道找谁帮忙|一看这个月的工资|交付/,phone+' '+age);
+    for(const section of ['growth','wealth','relationship']){
+      const a=analysePhone(phone);if(!a.matches.length)continue;
+      const content=block(html,section);
+      assert.ok(content.includes('reading-explanation') || modules['./report-focus'].modifierMood(modules['./report-focus'].selectReportFocus(a).anchor?.group)==='mixed',phone+' '+section);
+    }
+  }
+});
+
+test('modified character explains priorities instead of recycling the work and social headline',()=>{
+  for(const phone of ['18318002957','18318002959','18520283007','18514014014']){
+    const html=render(phone),character=block(html,'character'),a=analysePhone(phone);
+    for(const domain of ['work','relationship'])assert.ok(!character.includes(reportReading(a,domain,30).lead));
+    const texts=[...character.matchAll(/<p>([^<]+)<\/p>/g)].map(m=>m[1]);
+    assert.equal(texts.length,2);assert.notEqual(texts[0],texts[1]);
+  }
 });

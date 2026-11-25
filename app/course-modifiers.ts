@@ -10,9 +10,9 @@ const voices: Record<PortraitStar, {
   visible: [string, string, string]; hidden: [string, string, string]; empty: [string, string, string];
 }> = {
   shengqi: {
-    visible: ["会主动找人帮忙，也愿意给别人牵线。", "熟人介绍的机会，你愿意主动去问、去争取。", "人缘好，遇到热心帮忙的人，也会记着回报。"],
-    hidden: ["有事不好意思求人；别人答应帮忙，你又不好意思催。", "熟人说能挣钱，你容易先给钱，怎么分、什么时候还却没问清。", "别人嘴上答应得好，你就信了；迟迟没办，又不好意思催。"],
-    empty: ["前面说好有人帮，做到后面却又变成自己收尾。", "因为熟人一句话先花了钱，后来该办的事却一直没办好。", "一开始聊得热络，真有事找对方时，却没有了下文。"],
+    visible: ["会主动找人帮忙，也愿意给别人牵线。", "有人推荐新的选择，你愿意继续了解用途、条件和费用。", "人缘好，遇到热心帮忙的人，也会记着回报。"],
+    hidden: ["有事不好意思求人；别人答应帮忙，你又不好意思催。", "听了推荐就先付钱，具体费用、结算和退出条件却没问完整。", "别人嘴上答应得好，你就信了；迟迟没办，又不好意思催。"],
+    empty: ["前面说好有人帮，做到后面却又变成自己收尾。", "听到对方保证就先付了钱，约好的事情却迟迟没有完成。", "一开始聊得热络，真有事找对方时，却没有了下文。"],
   },
   tianyi: {
     visible: ["肯把事情做好，也愿意让别人看见自己的本事。", "愿意主动挣钱，也在意付出能不能换来实在的收入。", "在乎谁就愿意付出，喜欢和不喜欢都比较明显。"],
@@ -40,7 +40,7 @@ const voices: Record<PortraitStar, {
     empty: ["办法换了几次，最早想做的事反而没做完。", "新的尝试一直在花钱，上一个到底赚没赚钱，却没算清。", "心里反复想，后来干脆不问、不解释，来往也淡了。"],
   },
   liusha: {
-    visible: ["会来事，能注意到客户喜欢什么，也容易不好意思拒绝额外要求。", "喜欢的东西想买，人情上的钱也舍不得省。", "很会照顾人的情绪，自己在意的态度也容易写在脸上。"],
+    visible: ["会留意对方的偏好，也容易为了让人满意反复修改。", "喜欢的东西想买，人情上的钱也舍不得省。", "很会照顾人的情绪，自己在意的态度也容易写在脸上。"],
     hidden: ["怕得罪人，明明不想做，还是先答应了。", "请客送礼舍得花，自己的钱不够用了，又不好意思说。", "别人语气冷一点，你就放在心上；问你怎么了，你又说没事。"],
     empty: ["为了让别人满意改了又改，自己的时间和安排却顾不上了。", "喜欢就买，心情不好也想下单，月底一看又没存下钱。", "前面很用心，失望多了却不解释，慢慢就不想再主动了。"],
   },
@@ -54,7 +54,7 @@ const voices: Record<PortraitStar, {
 // Follow-up questions must ask about the same issue as the selected reading,
 // not attach a generic "you did not speak up" question to every hidden mode.
 const questions: Record<PortraitStar, {hidden:[string,string,string];empty:[string,string,string]}> = {
-  shengqi:{hidden:["别人答应帮你的那件事，后来有明确回复吗？","熟人介绍的事，钱给了以后，你有没有问清具体怎么办？","那个人答应你的事，后来到底做了没有？"],empty:["说好一起做的事，最后是不是变成你一个人做？","事没办好、钱也没退的那一笔，你还在等吗？","平时聊得来的人，真有事时靠得住吗？"]},
+  shengqi:{hidden:["别人答应帮你的那件事，后来有明确回复吗？","你付钱的那件事，具体包含什么、什么时候完成，问清楚了吗？","那个人答应你的事，后来到底做了没有？"],empty:["说好一起做的事，最后是不是变成你一个人做？","事没办好、钱也没退的那一笔，你还在等吗？","平时聊得来的人，真有事时靠得住吗？"]},
   tianyi:{hidden:["多做的那些活，你有没有提过应该多算一点报酬？","有没有一笔说好要回来的钱，到现在还没收到？","你希望对方为你做的那件事，有没有直接说过？"],empty:["做的比原来说好的多，拿的钱也跟着多了吗？","最近一笔收入到账后，最大几笔花在了哪里？","不再主动联系，是不在乎了，还是失望太多？"]},
   yannian:{hidden:["最近做成的事，你有说过自己负责了哪一部分吗？","谈自己的报酬时，你是不是又少说了一句？","你想让对方怎么做，当时有没有说清楚？"],empty:["一直没做完的事，是不想做，还是同时管得太多？","给事情垫完钱，自己手里还留了多少急用的钱？","你不想再管，是太累，还是觉得好心没被理解？"]},
   fuwei:{hidden:["一直想做却没开始的那件事，你最怕哪一步出错？","反复比较却没买的东西，你到底在担心什么？","你那句都行，是真的愿意，还是不好意思拒绝？"],empty:["已经准备了很久的事，你定过哪天开始吗？","原本想存的钱，后来是被什么开销用掉的？","想联系却一直没联系的人，你还在等什么？"]},
@@ -77,9 +77,9 @@ export function courseModifierReading(group: NumberGroup): CompositionReading | 
   const domains = Object.fromEntries((["work", "money", "relationship"] as const).map((domain, i) => {
     const sentences = effects.map(effect => {
       if (effect.mode === "growing") return [
-        voice.visible[0] + "同样的做法用顺手了，下次还是习惯这样做。",
-        key === "tianyi" ? "更愿意做回头生意，让老客户下次还来找你。" : voice.visible[1] + "花过几次后，下次也容易照着花。",
-        voice.visible[2] + "跟越熟的人来往，越容易这样。",
+        voice.visible[0] + "做过几次之后，这会逐渐变成你习惯采用的处理方式。",
+        key === "tianyi" ? "更愿意做回头生意，让老客户下次还来找你。" : voice.visible[1] + "同类开销重复出现时，你容易沿用上一次的决定。",
+        voice.visible[2] + "这种表现也容易在持续的相处中反复出现。",
       ][i];
       const sentence = voice[effect.mode as "visible" | "hidden" | "empty"][i];
       return sentence;
@@ -93,11 +93,11 @@ export function courseModifierReading(group: NumberGroup): CompositionReading | 
   })) as CompositionReading["domains"];
   // Preserve the course's concrete 86 and 14 examples without promising gains.
   if (group.raw === "856") domains.money = {lead:"肯下功夫挣钱，但忙起来也容易觉得钱挣得辛苦。",text:"有活就接，做出来的收入别人看得见，自己却知道花了多少时间和精力。",question:"最近多赚的那部分钱，是效率提高了，还是用更多时间换来的？"};
-  if (group.raw === "154") domains.work = {lead:"有人愿意帮你介绍机会，你也知道该找谁搭把手。",text:"身边能提供介绍、建议和实际帮忙的人，你通常看得见，也愿意主动联系。",question:"最近愿意帮你的那个人，具体帮你解决了什么？"};
+  if (group.raw === "154") domains.work = {lead:"愿意请教有经验的人，也能通过介绍得到具体帮助。",text:"需要建议或介绍时，你愿意主动把问题讲清，再联系能提供相应帮助的人。",question:"最近愿意帮你的那个人，具体帮你解决了什么？"};
   if (group.raw === "145") domains.work = {lead:"会维系老关系，也愿意把一次帮忙变成长期来往。",text:"别人给过你机会，你会记着回应。熟悉的人越积越多，但也要分清谁是真能一起做事的人。",question:"哪些来往是能互相帮忙的，哪些只是平时聊得热闹？"};
   if (key === "shengqi" && group.zeroCount >= 2 && !group.fiveCount && group.modifierPosition === "middle") {
     domains.work = {lead:"别人说好会帮，等来等去，最后还是得自己做。",text:"对方几次说会帮，你就再给一次机会。事情没有办成，自己的安排却跟着一拖再拖。",question:"那个人前几次答应的事，最后到底做了没有？"};
-    domains.money = {lead:"前一笔钱还没拿回来，熟人一开口，你又给了钱。",text:"已经几次没兑现的安排，你还是不好意思追问，想着再等一下，结果自己的钱也一直用不上。",question:"有没有一件事，你已经等了好几次，对方却还只有口头答应？"};
+    domains.money = {lead:"前一笔钱还没拿回来，听到新的保证，又继续付了一笔。",text:"已经几次没兑现的安排，你还是不好意思追问，想着再等一下，结果自己的钱也一直用不上。",question:"有没有一件事，你已经等了好几次，对方却还只有口头答应？"};
     domains.relationship = {lead:"被同一个人反复放鸽子，还是习惯替对方找理由。",text:"一次没做到，你能理解。可同样的事发生几次，你还是不愿说重话，自己的委屈也就一直放着。",question:"这段来往，是真有难处，还是每次都只有你在体谅？"};
   }
   const dominant = effects[0].mode;
