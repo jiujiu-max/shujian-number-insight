@@ -1,0 +1,77 @@
+// Editorial interpretations of the owner's 2026-10-17 course notes.
+// These are cultural narratives, not validated predictions or financial advice.
+// Exact patterns only: no invented count threshold, sex restriction or diagnosis.
+export type ReadingDomain = "money" | "work" | "relationship";
+type CombinationReading = {
+  pattern: string;
+  domain: ReadingDomain;
+  lead: string;
+  scene: string;
+  question: string;
+};
+
+export const COMBINATION_READINGS: CombinationReading[] = [
+  { pattern: "856", domain: "money", lead: "能找到赚钱的机会，但每一笔都要费不少力气。",
+    scene: "有机会，也愿意干。只是接单要自己谈、事情要自己做、钱还要自己催，忙了一圈才拿到手。",
+    question: "最近一笔收入，最费劲的是找客户、把事情做完，还是催款？" },
+  { pattern: "806", domain: "money", lead: "钱投进去了，一时拿不出来，手头反而紧了。",
+    scene: "钱在项目里、货款里，或借给别人还没收回。不是完全没钱，而是要用的时候，不能马上拿出来。",
+    question: "如果有一笔钱暂时拿不回，是还没到约定时间，还是对方一直拖着？" },
+  { pattern: "865", domain: "money", lead: "会找省力的赚钱办法，不想什么都靠自己硬干。",
+    scene: "有熟悉的客户、做顺手的事情，就愿意继续做。比起从头摸索，更愿意把已经会的本事用好。",
+    question: "你赚得最顺手的钱，是老客户找来的，还是因为这件事你已经做熟了？" },
+  { pattern: "860", domain: "money", lead: "钱赚到了，花销也跟着来，最后没剩多少。",
+    scene: "收入刚到账，就要还账、付开销，或替别人出钱。看着一直有进账，回头一算，存款却没怎么增加。",
+    question: "上次钱到账后，是存下来了，还是还完账、付完开销就没剩多少？" },
+  { pattern: "153", domain: "relationship", lead: "心里在乎，就想多做一点，久了却觉得累。",
+    scene: "主动联系、记着对方的事，也愿意迁就。可总是自己先开口、先让步，时间长了也会想：怎么又是我？",
+    question: "有没有总是你先联系、先让步，心里也盼着对方主动一次的时候？" },
+  { pattern: "103", domain: "relationship", lead: "心里在乎，嘴上却不说，对方未必知道。",
+    scene: "想联系又怕显得太主动，有不满也先收着。你觉得自己已经表现得很明显，对方却可能根本没明白。",
+    question: "有哪句话，你一直等对方主动问，却没有亲口说过？" },
+  { pattern: "135", domain: "relationship", lead: "越在乎一个人，越愿意主动靠近。",
+    scene: "熟起来以后，会更主动联系、分享日常，也愿意一起安排事情。热情是长处，只是有时会忘了问对方想不想。",
+    question: "你帮着安排的事，对方真的想要，还是你觉得对他好就先做了？" },
+  { pattern: "130", domain: "relationship", lead: "以前什么都想跟对方说，后来却越来越不想开口。",
+    scene: "原来有事就想分享，后来回话越来越短。有时不是突然不在乎，而是失望攒着，谁也没有把话说开。",
+    question: "如果最近不想联系了，是发生过一件事，还是很多小事积在一起？" },
+  { pattern: "154", domain: "work", lead: "有人搭把手，事情就不用全靠自己扛。",
+    scene: "遇到难题时，别人的介绍、建议，或顺手帮的一次忙，能让你少走弯路。重要的是把自己需要什么说清楚。",
+    question: "最近谁给过你实际帮助？是介绍机会，还是帮你解决了一个具体难题？" },
+  { pattern: "145", domain: "work", lead: "别人愿意帮你，你也肯把事做好，来往就能继续。",
+    scene: "别人介绍来的机会，你认真做好，后面还可能继续来找你。不是只靠聊得开心，而是你把答应的事做好了。",
+    question: "有没有人介绍过一次之后，后面还愿意继续把事情交给你？" },
+  { pattern: "140", domain: "work", lead: "本来有人愿意帮忙，后来却没了下文。",
+    scene: "对方说帮你问问、介绍一下，你便一直等。可事情没有定时间，也没人再跟进，最后就这样搁下了。",
+    question: "对方说“帮你问问”以后，真的有去问，还是一直没了下文？" },
+  { pattern: "10498", domain: "money", lead: "有人在背后介绍机会，赚到钱后，也想让别人看得见。",
+    scene: "客户或机会可能来自别人牵线。事情做成后，会想请客、买些好东西，也在意别人是否觉得自己混得不错。",
+    question: "手头宽裕一点时，会不会想请客、买些好东西，让人觉得自己过得不错？" },
+  { pattern: "107", domain: "relationship", lead: "心里有话，到了嘴边又咽回去了。",
+    scene: "有意见，却怕说了伤和气；有委屈，又不知道怎么开口。别人问你怎么了，你说没事，心里却还过不去。",
+    question: "最近一次没说出口的话，你是怕吵起来，还是觉得说了也没用？" },
+  { pattern: "2003", domain: "relationship", lead: "话憋了很久，越拖越不知道怎么开口。",
+    scene: "一开始觉得忍一下就过去了，后来同样的事又发生。积得越多，越怕一开口就把旧账都翻出来。",
+    question: "如果只讲最近的一件事，不翻旧账，你最希望对方明白什么？" },
+  { pattern: "109", domain: "work", lead: "有本事，也做了不少事，却不太有机会让人看见。",
+    scene: "前期准备是你做的，出了问题也是你处理的。可到了汇报、说成绩的时候，别人却没怎么提起你。",
+    question: "有没有做了不少事，最后别人却不知道有你的功劳的时候？" },
+  { pattern: "7081", domain: "work", lead: "做了不少，回报却没跟上，心里开始想换个地方。",
+    scene: "事情总能交到你手里，机会却不一定轮到你。想离开，又担心换了也一样，于是边做边犹豫。",
+    question: "你想走，是因为不喜欢这份工作，还是活干得多，钱和机会却总轮不到你？" },
+  { pattern: "6024", domain: "work", lead: "想换个做法，心里盘算了很久，行动却还没开始。",
+    scene: "新方向看了不少，也想过怎么做。可总有条件没准备好，一边不满意现在，一边又继续照旧。",
+    question: "你一直没开始，是钱和时间还不够，还是不知道先做什么？" },
+  { pattern: "10031", domain: "money", lead: "钱曾经卡住了，后来又有了回款的进展。",
+    scene: "先垫了钱、等了很久，后来对方开始还，或者项目终于有了结算消息。对方说会还是一回事，钱真的到账又是另一回事。",
+    question: "这笔钱现在实际收回多少？剩下的有没有明确日期？" },
+  { pattern: "1053", domain: "money", lead: "钱暂时拿不回，但事情还在谈，不是完全没消息。",
+    scene: "对方还在联系，也在商量退款或还款。你想尽快拿回来，却又担心催得太急，把关系闹僵。",
+    question: "对方有没有说清哪天还、还多少，还是每次都让你再等等？" },
+  { pattern: "10027", domain: "money", lead: "投进去不少，收回来的却只是小部分。",
+    scene: "钱压得多，回得慢。偶尔回来一点，又让你想继续等，可大部分的钱还是没有拿回来。",
+    question: "如果有钱投在里面，你算过一共投了多少、拿回多少，还差多少吗？" },
+  { pattern: "100274", domain: "money", lead: "钱没收回来，人情又放不下，想催也难开口。",
+    scene: "钱投进去了，收回的只有一小部分。牵涉熟人或合作关系，催得急怕伤感情，不催又让自己一直着急。",
+    question: "对方是真的拿不出钱，还是你怕伤感情，一直不好意思问哪天还？" },
+];
