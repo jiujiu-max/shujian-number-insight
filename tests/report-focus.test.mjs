@@ -267,14 +267,15 @@ test('conditional progression preserves mixed and specific-case boundaries',()=>
 });
 
 
-test('concrete pair details follow decisions and client work instead of universal rescue or lending examples',()=>{
+test('concrete pair details distinguish decisions and shared expenses without assuming a business',()=>{
   const {pairDetail,expandedReading}=modules['./report-detail'];
   const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
   const cautious=reportReading(analysePhone('18543434343'),'work',30);
   assert.match(cautious.example,/选择|要求/);
   assert.doesNotMatch(cautious.example,/那份也接过来|加班|替他/);
   const clients=reportReading(analysePhone('18513131313'),'money',30);
-  assert.match(clients.example,/回头客|订单|服务/);
+  assert.match(clients.example,/各付各的|配送|打包/);
+  assert.doesNotMatch(clients.example,/回头客|订单|服务/);
   assert.doesNotMatch(clients.example,/借|催|还款/);
   assert.notEqual(pairDetail(group('13'),'money',30).example,pairDetail(group('31'),'money',30).example);
   assert.equal(pairDetail(group('104'),'work',30),undefined);
@@ -305,5 +306,59 @@ test('modified character explains priorities instead of recycling the work and s
     for(const domain of ['work','relationship'])assert.ok(!character.includes(reportReading(a,domain,30).lead));
     const texts=[...character.matchAll(/<p>([^<]+)<\/p>/g)].map(m=>m[1]);
     assert.equal(texts.length,2);assert.notEqual(texts[0],texts[1]);
+  }
+});
+
+
+test('shared 13 money copy works across phones and ages without turning every reader into a business owner',()=>{
+  const phones=['18527939132','18513131313','18313131313'];
+  for(const phone of phones)for(const age of ages){
+    const a=analysePhone(phone),r=reportReading(a,'money',age);
+    assert.match(r.pattern,/13/);
+    assert.match(r.lead,/一起付账/);
+    assert.match(r.example,/付|费用|转|钱/);
+    assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|客户|生意|订单|回头客|工资|房贷/);
+    const html=render(phone,age);
+    assert.match(block(html,'wealth'),/放到生活里看/);
+    assert.doesNotMatch(html,/用钱的习惯|比如这样的用钱习惯/);
+  }
+  const a=analysePhone(phones[0]);
+  const extra=reportSupplement(a,'relationship',30);
+  assert.equal(extra.pattern,'79');
+  assert.match(extra.lead,/说重|责怪/);
+  assert.match(extra.example,/提醒过|训了一顿/);
+  assert.doesNotMatch(extra.example,/自己猜|是不是不满意/);
+});
+
+test('modifier examples distinguish expectation, instruction, withheld questions and continuing expenses',()=>{
+  const {modifierAgeScene}=modules['./report-scenes'];
+  const checks=[
+    ['tianyi','hidden','relationship',/问起|失落/],
+    ['yannian','hidden','relationship',/要求|在意的地方/],
+    ['jueming','hidden','relationship',/前面几次|不满/],
+    ['wugui','hidden','relationship',/没有问|避开/],
+    ['huohai','hidden','work',/早点说|一步还没说清/],
+    ['jueming','empty','money',/加钱|补一次/],
+    ['yannian','empty','money',/工具|材料/],
+    ['huohai','empty','money',/答应|补的钱/],
+    ['wugui','empty','money',/旧会员|同时花钱/],
+  ];
+  for(const [star,mood,domain,topic] of checks)for(const age of ages){
+    const text=modifierAgeScene(star,mood,domain,age);
+    assert.match(text,topic,`${star} ${mood} ${domain}`);
+    assert.ok(text.length>45);
+  }
+});
+
+test('all rendered cohorts have substantive examples and avoid the discarded business template',()=>{
+  for(const phone of [...copyRegressionPhones,'18527939132']){
+    const a=analysePhone(phone),before=JSON.stringify(a);
+    if(!a.matches.length) continue;
+    for(const domain of ['work','money','relationship']){
+      const readings=ages.map(age=>reportReading(a,domain,age));
+      assert.equal(new Set(readings.map(r=>r.example)).size,5,phone+' '+domain);
+      for(const r of readings)assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|希望生意能一直|会事情做完|路子广|会来事/);
+    }
+    assert.equal(JSON.stringify(a),before);
   }
 });

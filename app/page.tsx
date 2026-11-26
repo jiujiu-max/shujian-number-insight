@@ -519,7 +519,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "机会和收入比较容易被人看见",
     scene: "你不太缺别人介绍机会，客户转介绍、朋友推荐或伴侣支持，往往比自己闷头找更有效。",
     relationship: "你认准的人，你愿意帮。你也希望自己有事时，对方能搭把手。",
-    money: "你看重长期往来和重复合作。做得让人放心，对方还愿意再找你，也愿意把你介绍给别人。",
+    money: "一起办事，你愿意让对方觉得跟你来往舒服。多付的一点钱常说算了，但对方未必知道你原本希望一起承担。",
     healthFocus: ["眼耳鼻等五官", "血液循环", "规律作息"],
   },
   "31": {
@@ -550,7 +550,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "会处理人和事，也容易被更多人看见",
     scene: "你会留意对方的需要，愿意主动联系和介绍，也会调整说法，让彼此更容易理解。",
     work: "跟人打交道有办法。遇到麻烦，知道该找谁帮忙，也知道话怎么说对方愿意听。",
-    money: "别人听过你、跟你合作过，才更愿意把客户介绍给你。你比较看重口碑，也愿意花时间维护这些来往。",
+    money: "有人愿意介绍新的事情给你，你也想认真做完，让这份信任延续。可每次要花多少时间、有没有额外费用，不能因为是人介绍的就省掉确认。",
   },
   "72": {
     label: "很会讲，也有把人说服的本事",
@@ -562,7 +562,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "会经营关系，也会给自己留一点余地",
     scene: "别人有事容易想到你，你也懂得顺着场面把事情办成；嘴上答应和心里真实想法偶尔并不完全一样。",
     relationship: "跟人相处会留面子。心里有不同意见，也不一定当场说出来。",
-    money: "已有的合作和客户推荐能带来新的联系。你也会给自己留些钱，不想把手头的钱一次全花出去。",
+    money: "别人推荐一起花钱做一件事，你愿意考虑，也想给自己留点余钱。为了顾及交情不断加钱时，这两种想法就容易冲突。",
   },
 
   "12": {
@@ -573,7 +573,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "21": {
     label: "看到机会敢下手，也容易追求快结果",
     scene: "你愿意为项目和事业冒险，赚得快时花得也快；规则不清的合作最需要先查清楚。",
-    work: "看到新生意、新机会，就想赶紧试。别人还在考虑，你已经想开始做了。",
+    work: "看到一种新办法，就想赶紧动手试。别人还在比较，你已经开始准备，却未必先算过需要多少时间。",
     money: "你赚钱想快一点，花钱也容易一时冲动。看好一个项目就想投，合同还没弄清楚，钱已经给出去了。",
   },
   "69": {
@@ -597,7 +597,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "37": {
     label: "一旦决定就会马上行动",
     scene: "你不喜欢拖，认定后推进很快；钱款在外、项目回款或替人垫付时，容易因为着急而少留证据。",
-    money: "看好一件事就想快点做，容易先垫钱、后等回款。钱已经付出去了，什么时候能收回来，却没问清楚。",
+    money: "事情还没完全定下来，你就容易先把钱垫上。等自己需要用钱，才发现双方一直没确定什么时候结清。",
     healthFocus: ["外伤与恢复", "手脚与关节", "规律休息"],
   },
   "48": {
@@ -627,7 +627,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "79": {
     label: "反应快、说话直，出力后却容易被误解",
     scene: "你做事有冲劲，说话也有力度；问题是别人可能只记住你的强势，没看到你实际做了多少。",
-    relationship: "你明明是好意，一着急却容易说重话。忙帮了，别人反而觉得你不好说话。",
+    relationship: "看出问题就急着提醒，话一说重，对方只记住了被责怪。",
     healthFocus: ["外伤与恢复", "活动安全", "睡眠"],
   },
   "97": {
@@ -670,7 +670,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "人脉和资源多，知道怎样花小力气办成事",
     scene: "碰到不熟悉的事，你会向做过的人请教，再联系能提供相应帮助的人一起处理。",
     work: "遇到问题，不会只顾自己硬干。你会先问清需要哪方面经验，再联系能提供相应帮助的人一起做。",
-    money: "会找人一起做点小生意，也不想一开始就投太多。只是跟人一起出钱做事，钱怎么分、各出多少，要问清楚才不容易闹别扭。",
+    money: "愿意和别人一起分担费用，先从花得起的小事试起。可一开始聊得顺利，容易把各出多少、买来的东西怎么用留到付钱以后再谈。",
   },
   "67": {
     label: "讲面子、愿意撑场，钱也容易留在外面",
@@ -713,7 +713,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "很会借平台做事，也习惯给自己留后路",
     scene: "你的机会常经由公司、机构、渠道或中间平台出现。平台规则清楚时容易借力，规则含糊时，事情和钱也更容易被平台卡住。",
     work: "会借公司的资源和同事的帮忙做事，不喜欢什么都从零开始。可有时自己的想法，也得等别人同意才能做。",
-    money: "钱经过公司或平台时，你比较在意什么时候结算、要扣多少。钱看着已经赚到，没到账之前还是用不了。",
+    money: "一笔钱说好会收到，你就开始想怎么用。可真正能拿来付账的，仍然是已经到手的部分。",
     healthFocus: ["头发状态", "睡眠", "脾胃与消化"],
   },
   "61": {
@@ -744,7 +744,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "很会看人和顾场面，花钱也容易受情绪带动",
     scene: "你很会看人，也愿意为关系、爱美和享受花钱。很容易超前消费，赚到钱也容易马上花出去，钱留不住。",
     relationship: "你很在意别人对你的态度。对方回话冷一点，你就会想自己是不是说错了什么。",
-    work: "懂得看客户的反应，也在意好不好看、用着舒不舒服。做服务、销售或设计时，容易注意到别人漏掉的细节。",
+    work: "会留意别人用起来方不方便，也在意细节好不好看。对方多提一个要求，你又容易想着一起改好，最后比原定的时间多忙不少。",
     money: "你容易超前消费，钱留不住。心情不好想买东西，朋友一叫又去消费，工资还没到账，分期账单已经排上了。",
     healthFocus: ["手脚与关节", "头发状态", "脾胃与消化"],
   },
@@ -797,7 +797,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "23": {
     label: "朋友多、能说服人，但容易被外界带节奏",
     scene: "你会聊天、会成交，资源也不差；真正该推进自己的事时，却可能被朋友和临时消息打断。",
-    work: "会说话，也能跟客户聊起来。可朋友一叫、消息一多，就容易把本来要做的事拖到后面。",
+    work: "能找到对方愿意听的话题，也敢把自己的想法讲出来。可话题一多，容易先聊开了，原本要确认的事情反而没有说完。",
     healthFocus: ["手脚与磕碰", "活动安全", "口腔咽喉"],
   },
   "32": {
@@ -1239,7 +1239,7 @@ const SEQUENCE_RULES: SequenceRule[] = [
     basis: "14在八星表中归为生气；案例里进一步落到营销、人缘、新鲜感和自我摸索。优势在会连接人和机会，风险在钱也容易跟着兴趣流出去。",
     tone: "mixed",
     work: "喜欢研究新东西，也会想点子。介绍产品、讲一个新想法时，知道怎么说别人更愿意听。",
-    money: "喜欢的新东西想买，朋友介绍的生意也想试。每次都觉得花得有道理，回头一算才发现没存下多少。",
+    money: "喜欢的新东西想买，别人推荐的体验也想试。每次都觉得花得有道理，回头一算才发现没存下多少。",
   },
   {
     pattern: "1978",
@@ -3262,14 +3262,14 @@ function ResultSectionV3({ analysis, age, gender }: {
       </section>
 
       <section className="topic-section" id="report-wealth">
-        <div className="topic-heading"><span>03 · 财路与用钱</span><h3>钱为什么这样花，又容易忽略什么</h3></div>
+        <div className="topic-heading"><span>03 · 财路与用钱</span><h3>面对钱，你在意什么，又容易忽略什么</h3></div>
         <div className="wealth-route">
-          <article><span>用钱的习惯</span><strong>{money.lead}</strong>
+          <article><span>涉及钱时，你容易怎么想</span><strong>{money.lead}</strong>
             {money.paragraphs[0] && <p className="reading-explanation">{money.paragraphs[0]}</p>}
             {money.paragraphs.length > 1 && <details className="reading-details"><summary>再说具体一点</summary>{money.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
           <i aria-hidden="true">→</i>
-          <article><span>比如这样的用钱习惯</span><p>{money.example}</p></article>
+          <article><span>放到生活里看</span><p>{money.example}</p></article>
         </div>
         <ReadingSupplement item={moneyExtra} />
         {!moneyExtra && money.consequence && <p className="reading-consequence"><b>如果一直这样</b>{money.consequence}</p>}

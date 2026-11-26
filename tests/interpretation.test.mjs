@@ -219,7 +219,7 @@ test('0 and 5 retain actual positions and mixed effects rather than cancelling e
   const mixed=make('4509');
   assert.match(mixed.id,/visible.*hidden/);
   assert.match(mixed.domains.money.text,/主动挣钱/);
-  assert.match(mixed.domains.money.text,/拿不出来/);
+  assert.match(mixed.domains.money.text,/还没到账.*还没收到/);
   assert.match(make('07558').id,/leading-hidden.*middle-visible/);
   assert.equal(classifyNumberGroup('07558',PAIR_LOOKUP).fiveCount,2);
   const normal=analysePhone('18949272756').work.ordered.find(r=>r.group.raw==='92');
@@ -505,9 +505,9 @@ test('course 86 and 14 examples have four distinct position-aware readings and a
     }
   }
   assert.match(make('856').domains.money.lead,/辛苦/);
-  assert.match(make('806').domains.money.text,/货款没结.*拿不出来/);
-  assert.match(make('865').domains.money.text,/老客户|回头/);
-  assert.match(make('860').domains.money.text,/花钱.*没攒下/);
+  assert.match(make('806').domains.money.text,/还没到账.*还没收到/);
+  assert.match(make('865').domains.money.text,/合作顺利.*继续/);
+  assert.match(make('860').domains.money.text,/账单和临时开销.*没留下/);
 });
 
 test('0/5 sub-combinations remain effective inside a group that starts with repeated digits', () => {
@@ -515,9 +515,9 @@ test('0/5 sub-combinations remain effective inside a group that starts with repe
   const readings=['856','806','865','860'].map(pattern=>analysePhone('185'+pattern.padStart(8,'6')).money);
   assert.equal(new Set(readings.map(r=>r.text)).size,4);
   assert.match(readings[0].text,/辛苦|时间和精力/);
-  assert.match(readings[1].text,/货款没结.*拿不出来/);
-  assert.match(readings[2].text,/老客户|回头/);
-  assert.match(readings[3].text,/花钱.*没攒下/);
+  assert.match(readings[1].text,/还没到账.*还没收到/);
+  assert.match(readings[2].text,/合作顺利.*继续/);
+  assert.match(readings[3].text,/账单和临时开销.*没留下/);
   assert.ok(!analysePhone('15366666666').relationship.ordered.some(r=>r.group.raw==='153'));
 });
 
