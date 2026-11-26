@@ -8,7 +8,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 // Exercise the actual page's analyser and renderer without exposing debug APIs
 // or transmitting any of these synthetic/example inputs to a server.
 const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
-const compiled = ts.transpileModule(source + '\nexport { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, consultationDomain };', {
+const compiled = ts.transpileModule(source + '\nexport { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, reportSupplements, consultationDomain };', {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const combinationSource = readFileSync(new URL('../app/combination-readings.ts', import.meta.url), 'utf8');
@@ -29,7 +29,7 @@ for (const name of ['star-portraits', 'triple-readings', 'age-contexts', 'charac
 }
 const sandbox = { exports: {}, require: (id) => modules[id] ?? nodeRequire(id) };
 vm.runInNewContext(compiled, sandbox);
-const { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, consultationDomain, default: Home } = sandbox.exports;
+const { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, reportSupplements, consultationDomain, default: Home } = sandbox.exports;
 const { parseNumberComposition, classifyNumberGroup } = modules['./number-composition'];
 const { compositionReading } = modules['./composition-readings'];
 const { EIGHT_TYPES, buildTypeRadar, makeTypeShareData, radarPoints, SITE_URL } = modules['./eight-types'];
@@ -44,5 +44,5 @@ const copyRegressionPhones = [...new Set([
 ])].sort();
 
 
-export { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, consultationDomain, Home, parseNumberComposition, classifyNumberGroup, compositionReading, EIGHT_TYPES, buildTypeRadar, makeTypeShareData, radarPoints, SITE_URL, render, copyRegressionPhones, modules, COMBINATION_READINGS, source };
+export { analysePhone, ResultSectionV3, SEQUENCE_RULES, PAIR_VOICES, PAIR_LOOKUP, AGE_STAGE_CONTEXTS, getAgeStageContext, buildCharacterProfile, reportReading, reportSupplement, reportSupplements, consultationDomain, Home, parseNumberComposition, classifyNumberGroup, compositionReading, EIGHT_TYPES, buildTypeRadar, makeTypeShareData, radarPoints, SITE_URL, render, copyRegressionPhones, modules, COMBINATION_READINGS, source };
 

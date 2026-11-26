@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {analysePhone,reportReading,reportSupplement,consultationDomain,render,modules,copyRegressionPhones,buildTypeRadar,makeTypeShareData,classifyNumberGroup,compositionReading,PAIR_LOOKUP} from './report-harness.mjs';
+import {analysePhone,reportReading,reportSupplement,reportSupplements,consultationDomain,render,modules,copyRegressionPhones,buildTypeRadar,makeTypeShareData,classifyNumberGroup,compositionReading,PAIR_LOOKUP} from './report-harness.mjs';
 
 const {selectReportFocus,TYPE_IDENTITIES,focusHook,freshDetails}=modules['./report-focus'];
 const samples=['18520283007','17637056891','18945092756','13145924272','14704851410','18466196666','15207558336','15342204620','18318002959','18318002957'];
@@ -52,7 +52,7 @@ test('specific examples do not replace helpful or quiet cases with generic lendi
   assert.match(modifierAgeScene('liusha','empty','work',72),/配合|改/);
   assert.doesNotMatch(modifierAgeScene('liusha','empty','work',72),/学新功能|开头很认真/);
   assert.match(modifierAgeScene('huohai','empty','work',30),/谁负责/);
-  assert.match(modifierAgeScene('tianyi','empty','work',30),/报酬/);
+  assert.match(modifierAgeScene('tianyi','empty','work',30),/取个包裹.*退一件货.*自己的事还没办/);
 });
 
 test('consultation continues the actual focus reading instead of a service catalogue',()=>{
@@ -99,7 +99,7 @@ test('radar takeaway is one source-specific sentence, not five mid-range templat
     assert.equal(text,sentence(phone));
   }
   assert.notEqual(sentence('18318002959'),sentence('18318002957'));
-  assert.match(sentence('18520283007'),/怕选错/);
+  assert.match(sentence('18520283007'),/怕做不好|还没动手/);
   const a=render('18318002959'),b=render('18318002957');
   assert.match(a,/图中更突出：变通、感受/);
   assert.match(b,/图中更突出：变通、行动/);
@@ -227,7 +227,10 @@ test('expanded explanations remain mode-specific and retain mixed and repeated-z
     for(const domain of ['work','money','relationship']){
       const r=reportReading(a,domain,30);
       const original=freshDetails(r.text,[r.lead,r.example]);
-      if(r.mood==='mixed' || r.pattern.includes('00') && r.pattern.includes('82')) {
+      if(r.mood==='mixed') {
+        assert.ok(r.paragraphs.length && r.paragraphs[0].length>40);
+        assert.ok(r.example.length>35);
+      } else if(r.pattern.includes('00') && r.pattern.includes('82')) {
         if(original.length) assert.deepEqual([...r.paragraphs],[...original]);
       } else assert.ok(r.paragraphs.length,phone+' '+domain);
     }
@@ -241,8 +244,8 @@ test('fuwei hidden copy says what is being delayed and the age example says why'
   assert.match(r.domains.work.question,/没开始.*怕哪一步出错/);
   assert.doesNotMatch(r.domains.work.question,/没跟对方说清楚/);
   const example=modules['./report-scenes'].modifierAgeScene('fuwei','hidden','work',30);
-  assert.match(example,/简历改了几遍却没投/);
-  assert.match(example,/怕下一份还不如现在/);
+  assert.match(example,/视频看了几遍/);
+  assert.match(example,/怕火候掌握不好/);
 });
 
 test('conditional progression preserves mixed and specific-case boundaries',()=>{
@@ -280,7 +283,7 @@ test('concrete pair details distinguish decisions and shared expenses without as
   assert.notEqual(pairDetail(group('13'),'money',30).example,pairDetail(group('31'),'money',30).example);
   assert.equal(pairDetail(group('104'),'work',30),undefined);
   assert.equal(pairDetail(group('154'),'work',30),undefined);
-  assert.equal(expandedReading('tianyi',group('1053'),'money',30),undefined);
+  assert.match(expandedReading('tianyi',group('1053'),'money',30).explanation,/主动争取.*到账日期/);
   for(const age of ages){
     const repeated=expandedReading('shengqi',group('8002'),'money',age);
     assert.match(repeated.example,/前一笔.*又付了一次/);
@@ -360,5 +363,69 @@ test('all rendered cohorts have substantive examples and avoid the discarded bus
       for(const r of readings)assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|希望生意能一直|会事情做完|路子广|会来事/);
     }
     assert.equal(JSON.stringify(a),before);
+  }
+});
+
+test('same primary type keeps different actual combinations on cover and detailed report',()=>{
+  const inputs=['18518999656','18560984506'];
+  const analyses=inputs.map(analysePhone);
+  assert.deepEqual(analyses.map(a=>a.primary.key),['huohai','huohai']);
+  assert.deepEqual(analyses.map(a=>[...a.composition.groups.map(g=>g.raw)]),[['18','8999','9656'],['609','98','84','4506']]);
+  for(const age of ages){
+    const html=inputs.map(p=>render(p,age));
+    const cover=s=>s.split('class="type-cover"')[1].split('class="type-reading-intro"')[0];
+    assert.notEqual(cover(html[0]),cover(html[1]));
+    assert.match(cover(html[0]),/心里已经有压力/);
+    assert.match(cover(html[1]),/有话愿意说.*真正的不满/);
+    for(const d of ['work','money','relationship']) {
+      const readings=analyses.map(a=>reportReading(a,d,age));
+      assert.notEqual(readings[0].lead,readings[1].lead);
+      assert.notEqual(readings[0].example,readings[1].example);
+      assert.ok(readings.every(r=>r.paragraphs.length));
+    }
+  }
+  // Carrier changes cannot manufacture report differences.
+  assert.deepEqual(reportReading(analysePhone('17760984506'),'work',30),reportReading(analyses[1],'work',30));
+});
+
+test('mixed 0 and 5 have concrete dual-effect explanations without losing a trailing zero',()=>{
+  const {expandedReading}=modules['./report-detail'];
+  const pairByStar={shengqi:'14',tianyi:'13',yannian:'19',fuwei:'11',jueming:'12',wugui:'18',liusha:'16',huohai:'17'};
+  for(const [star,pair] of Object.entries(pairByStar))for(const raw of [pair[0]+'50'+pair[1],pair[0]+'05'+pair[1],pair[0]+'5'+pair[1]+'0']){
+    const group={raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)};
+    assert.equal(modules['./report-focus'].modifierMood(group),'mixed');
+    for(const d of ['work','money','relationship']){
+      const detail=expandedReading(star,group,d,30);
+      assert.ok(detail.explanation.length>40 && detail.example.length>35);
+      assert.doesNotMatch(detail.example,/同事|客户|公司|老板|开会|工资|副业|简历|约好约|钱的钱/);
+      if(raw.endsWith('0'))assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+    }
+  }
+});
+
+test('remaining distinct groups are accessible instead of being dropped after one supplement',()=>{
+  const a=analysePhone('18560984506');
+  for(const d of ['work','money','relationship']){
+    const items=reportSupplements(a,d,30),html=render(a.phone);
+    assert.ok(items.length>1);
+    assert.equal(new Set(items.map(x=>x.pattern)).size,items.length);
+    for(const item of items){
+      assert.ok(a[d].ordered.some(x=>x.group.raw===item.pattern && x.group.index===item.index));
+      assert.ok(html.includes(item.example));
+    }
+    assert.match(html,/还有哪些不同的表现/);
+  }
+});
+
+test('all report cohorts use ordinary daily scenes without assigning a job or school status',()=>{
+  for(const p of [...copyRegressionPhones,'18518999656','18560984506'])for(const age of ages){
+    const html=render(p,age);
+    assert.doesNotMatch(html,/同事|客户|老板|公司资源|开会时|下班时间|工作汇报|工资|做副业|接点私活|投简历|你的孩子|约好约|钱的钱/);
+    for(const d of ['work','money','relationship']){
+      const a=analysePhone(p),main=reportReading(a,d,age);
+      const examples=[main.example,...reportSupplements(a,d,age).map(x=>x.example)];
+      assert.equal(new Set(examples).size,examples.length,p.slice(-4)+' '+age+' '+d);
+      assert.doesNotMatch(examples.join(''),/同学|作业|实习|已经退休|已经结婚/);
+    }
   }
 });

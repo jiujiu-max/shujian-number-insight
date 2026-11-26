@@ -651,7 +651,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
     label: "想法多，但真正开始前容易先焦虑",
     scene: "你会自己研究，也可能悄悄做副业或接私活；问题是顾虑一多，执行就跟不上想法。",
     work: "喜欢自己研究新办法，也想试点别的。可准备得越多，顾虑也越多，最后一直没开始。",
-    money: "会考虑做副业、接点私活。但一想到要花多少时间、要先垫多少钱，就容易犹豫。",
+    money: "会想尝试新的办法，却容易先被成本和难处绊住。但一想到要花多少时间、要先垫多少钱，就容易犹豫。",
   },
   "42": {
     label: "付出不少，却容易碰到回报不对等",
@@ -712,7 +712,7 @@ const PAIR_VOICES: Record<string, PairVoice> = {
   "16": {
     label: "很会借平台做事，也习惯给自己留后路",
     scene: "你的机会常经由公司、机构、渠道或中间平台出现。平台规则清楚时容易借力，规则含糊时，事情和钱也更容易被平台卡住。",
-    work: "会借公司的资源和同事的帮忙做事，不喜欢什么都从零开始。可有时自己的想法，也得等别人同意才能做。",
+    work: "愿意借用现成的资料和工具，也会请做过的人帮忙。可有时自己的想法，也得等别人同意才能做。",
     money: "一笔钱说好会收到，你就开始想怎么用。可真正能拿来付账的，仍然是已经到手的部分。",
     healthFocus: ["头发状态", "睡眠", "脾胃与消化"],
   },
@@ -3000,12 +3000,12 @@ type AgeStageContext = {
 
 const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
   {
-    max: 24, badge: "18—24岁 · 学业与起步期", workNav: "学业工作",
-    workLabel: "学习、找方向和工作起步",
+    max: 24, badge: "18—24岁 · 日常情境参考", workNav: "做事习惯",
+    workLabel: "学东西、办事情和安排时间",
     workTitle: "选专业、找实习、投简历，最让你发愁的是哪一步？是不知道选什么，还是怕选错，一直没动？",
     moneyCheck: "想想生活费、兼职收入或第一份工资：有没有为聚会、买东西、报课先花后算？",
     moneyHeading: "第一笔收入，容易花在哪里",
-    socialPeople: "同学、朋友与刚认识的同事",
+    socialPeople: "朋友、亲友与新认识的人",
     socialQuestion: "同学约你、朋友求你帮忙时，你能不能说出自己的安排？",
     scenes: {
       jueming: ["有机会就想试。别人介绍实习，还没问清每天做什么、有没有工资，就先答应了。", "喜欢的东西先买了再说，到了月底，生活费就紧了。", "和朋友意见不一样，总想讲到对方认同，聊着聊着就急了。"],
@@ -3019,12 +3019,12 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     },
   },
   {
-    max: 34, badge: "25—34岁 · 事业积累期", workNav: "事业机会",
-    workLabel: "换工作、长本事和争取机会",
+    max: 34, badge: "25—34岁 · 日常情境参考", workNav: "做事习惯",
+    workLabel: "处理事情和安排自己的时间",
     workTitle: "如果正在考虑换工作或争取新机会，你更想要收入提高、学到本事，还是有人愿意带你？",
     moneyCheck: "工资涨了，房租、吃饭、买东西也花得更多。每个月真正存下的钱，有没有变多？",
     moneyHeading: "收入在增加，钱有没有留下来",
-    socialPeople: "同事、朋友和合作伙伴",
+    socialPeople: "朋友、亲友和日常来往的人",
     socialQuestion: "同事请你配合工作，你会先问清楚，还是怕不好相处就答应？",
     scenes: {
       jueming: ["你做事有冲劲，但有时答应得太快。还没问清要做多少活、能拿多少钱，就先接下来了。", "想快点多赚些钱，听说项目不错就想投，钱交了才开始问细节。", "做事着急，交代完就想要结果，对方还没做完，你已经催了几次。"],
@@ -3038,8 +3038,8 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     },
   },
   {
-    max: 49, badge: "35—49岁 · 经验发展期", workNav: "事业发展",
-    workLabel: "做事、带人和跟人合作",
+    max: 49, badge: "35—49岁 · 日常情境参考", workNav: "做事习惯",
+    workLabel: "拿主意、分担事情和处理变化",
     workTitle: "事情越接越多，是没人帮你，还是交给别人又不放心，最后还是自己做？",
     moneyCheck: "手里的钱够不够用？有没有钱借出去了、替人垫了，或者投进项目，一时拿不回来？",
     moneyHeading: "钱赚了不少，为什么手头还是紧",
@@ -3057,12 +3057,12 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     },
   },
   {
-    max: 64, badge: "50—64岁 · 生活安排期", workNav: "做事安排",
+    max: 64, badge: "50—64岁 · 日常情境参考", workNav: "做事安排",
     workLabel: "继续做什么，哪些可以放一放",
     workTitle: "哪些事还想继续做，哪些已经不想接了？别人来找时，你能不能直接说“这件事我做不了”？",
     moneyCheck: "原本想留给自己的钱，有没有因为亲友开口，又借了出去、替人付了？",
     moneyHeading: "安排好自己的钱，再考虑其他事",
-    socialPeople: "工作伙伴、老朋友和日常往来",
+    socialPeople: "老朋友与日常来往的人",
     socialQuestion: "老同事、朋友找你帮忙，说好只帮一次，后来会不会又一直来找你？",
     scenes: {
       jueming: ["做事不拖拉，想到就去做。但一天接了太多事，忙到晚上还没歇下。", "听到赚钱机会还想试一把，先想能赚多少，没细算要拿出多少积蓄。", "朋友问你意见，你很快就拿了主意，却可能没问他自己想怎么做。"],
@@ -3076,7 +3076,7 @@ const AGE_STAGE_CONTEXTS: AgeStageContext[] = [
     },
   },
   {
-    max: 90, badge: "65岁以上 · 日常生活期", workNav: "日常安排",
+    max: 90, badge: "65岁以上 · 日常情境参考", workNav: "日常安排",
     workLabel: "自己的安排、兴趣和精力",
     workTitle: "还在工作，哪些事可以请人搭把手？已经退休，有没有自己想做、却一直没顾上做的事？",
     moneyCheck: "买大件、借钱给人之前，有没有想过自己还要用多少？有没有不想出钱，又怕伤和气的时候？",
@@ -3125,14 +3125,13 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   const portrait = STAR_PORTRAITS[key][domain];
   const mood = modifierMood(entry?.group);
   const expanded = expandedReading(key,entry?.group,domain,age);
-  const lead = insight.lead ?? portrait.lead;
+  const lead = expanded?.lead ?? insight.lead ?? portrait.lead;
   const example = expanded?.example ?? specificEverydayScene(entry?.group,domain,age)
     ?? modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age);
   // A full explanation develops the reason and tradeoff. Do not stack the
   // former generic scene and consequence around an almost identical example.
   const sourceDetails = freshDetails(insight.text,[lead,example]);
-  const specificSource = entry?.composition && (mood==='mixed'
-    || entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2);
+  const specificSource = entry?.composition && entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2 && !entry.group.fiveCount;
   const paragraphs = specificSource ? sourceDetails
     : expanded?.explanation ? [expanded.explanation] : sourceDetails;
   return {
@@ -3149,30 +3148,38 @@ function consultationDomain(analysis: Analysis): ReadingDomain {
 
 // Additional detail comes from another actually matched composition, never a
 // random sentence or a modifier borrowed from elsewhere in the number.
-function reportSupplement(analysis: Analysis, domain: ReadingDomain, age: number) {
+function reportSupplements(analysis: Analysis, domain: ReadingDomain, age: number) {
   const focus = selectReportFocus(analysis);
   const primary = reportReading(analysis,domain,age);
   const candidates = (analysis[domain].ordered ?? []).filter(entry =>
     entry.group.stars.length === 1
     && !(entry.group.index === focus.anchor?.group.index && entry.group.endIndex === focus.anchor?.group.endIndex)
-    && (entry.group.stars[0] !== focus.star || modifierMood(entry.group) !== primary.mood)
     && entry.lead !== primary.lead);
   // Prefer a genuinely different facet. Preserve left-to-right order for ties.
   candidates.sort((a,b)=>Number(b.group.stars[0]!==focus.star)-Number(a.group.stars[0]!==focus.star));
+  const result: {pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string}[]=[];
   for(const entry of candidates) {
     const key = entry.group.stars[0], mood = modifierMood(entry.group);
     const specific = ['856','154','145','959'].includes(entry.group.raw) || entry.group.base==='99' || entry.group.base==='82' && mood==='plain';
     const detail = freshDetails(entry.text,[entry.lead,primary.lead,primary.example,...primary.paragraphs]).join('');
-    const example = expandedReading(key,entry.group,domain,age)?.example ?? specificEverydayScene(entry.group,domain,age) ?? (specific || mood==='mixed' ? detail
+    const expanded = expandedReading(key,entry.group,domain,age);
+    const lead = expanded?.lead ?? entry.lead;
+    const example = expanded?.example ?? specificEverydayScene(entry.group,domain,age) ?? (specific || mood==='mixed' ? detail
       : modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age));
     if(!example || example===primary.example || primary.paragraphs.some(p=>p.includes(example))) continue;
-    return {pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,lead:entry.lead,example};
+    if(result.some(item=>item.example===example)) continue;
+    result.push({pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,lead,example});
   }
+  return result;
+}
+function reportSupplement(analysis: Analysis, domain: ReadingDomain, age: number) {
+  return reportSupplements(analysis,domain,age)[0];
 }
 
-function ReadingSupplement({item}: {item:ReturnType<typeof reportSupplement>}) {
-  if(!item) return null;
-  return <div className="reading-supplement"><span>再看一个细节</span><h4>{item.lead}</h4><p>{item.example}</p></div>;
+function ReadingSupplement({items}: {items:ReturnType<typeof reportSupplements>}) {
+  if(!items.length) return null;
+  const detail=(item:typeof items[number])=><div className="reading-supplement" key={`${item.index}-${item.endIndex}`}><h4>{item.lead}</h4><p>{item.example}</p></div>;
+  return <><div className="reading-supplement"><span>再看一个细节</span><h4>{items[0].lead}</h4><p>{items[0].example}</p></div>{items.length>1 && <details className="reading-details"><summary>还有哪些不同的表现</summary>{items.slice(1).map(detail)}</details>}</>;
 }
 
 function ResultSectionV3({ analysis, age, gender }: {
@@ -3188,15 +3195,15 @@ function ResultSectionV3({ analysis, age, gender }: {
   const work = reportReading(analysis, "work", age);
   const money = reportReading(analysis, "money", age);
   const social = reportReading(analysis, "relationship", age);
-  const workExtra = reportSupplement(analysis,"work",age);
-  const moneyExtra = reportSupplement(analysis,"money",age);
-  const socialExtra = reportSupplement(analysis,"relationship",age);
+  const workExtra = reportSupplements(analysis,"work",age);
+  const moneyExtra = reportSupplements(analysis,"money",age);
+  const socialExtra = reportSupplements(analysis,"relationship",age);
   const type = EIGHT_TYPES[analysis.primary.key];
   const radar = buildTypeRadar(analysis.matches, analysis.composition.groups);
   const consultationReading = focus.domain === "money" ? money : focus.domain === "relationship" ? social : work;
   const invitation = consultationFocus(focus.star,age,consultationReading.mood,focusedEntry(analysis,focus.domain)?.group);
   const watchout = focusHook({...focus,mood:consultationReading.mood},consultationReading.lead);
-  const shareData = makeTypeShareData(analysis.primary.key, analysis.secondary?.key, radar, watchout,focus.role,focus.motto);
+  const shareData = makeTypeShareData(analysis.primary.key, analysis.secondary?.key, radar, watchout,focus.role,character.outside.title);
   const visibleCopy = [work.lead,money.lead,social.lead,work.example,money.example,social.example,watchout];
   const outsideScene = freshDetails(character.outside.scene,[...visibleCopy,character.outside.title]).join("")
     || characterExample(focus.star,work.mood,'outside');
@@ -3222,7 +3229,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           <div className="type-kicker"><span>数见八型</span><span>你的数字类型</span></div>
           <div className="type-title-row"><h2 id="report-title">{type.name}</h2><span className="type-seal" aria-hidden="true">{type.word}</span></div>
           <p className="type-role">{focus.role}</p>
-          <p className="type-tagline">{focus.motto}</p>
+          <p className="type-tagline">{character.outside.title}</p>
           <div className="type-star-line"><span>{type.star} · 主类型</span>{analysis.secondary && <span>也有{EIGHT_TYPES[analysis.secondary.key].name}的一面</span>}</div>
           <div className="type-key-points">
             <div><span>你的长处</span><p>{type.strength}</p></div>
@@ -3230,7 +3237,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           </div>
           <TypeShare data={shareData} />
         </div>
-        <TypeRadar radar={radar} takeaway={radarTakeaway(focus.star, work.mood, anchor?.group, work.lead)} />
+        <TypeRadar radar={radar} takeaway={radarTakeaway(focus.star, consultationReading.mood, anchor?.group, consultationReading.lead)} />
         <p className="type-cultural-note">传统数字文化画像 · 用来观察自己，不是心理测评或事实判定。</p>
       </section>
       <div className="type-reading-intro"><span>你擅长什么，又容易在哪吃亏？</span><p>性格看在意什么，做事看怎样判断，用钱看取舍，相处看彼此的期待。</p></div>
@@ -3257,7 +3264,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           </article>
           <article><span>看看你有没有这样的时候</span><p>{work.example}</p></article>
         </div>
-        <ReadingSupplement item={workExtra} />
+        <ReadingSupplement items={workExtra} />
         {!workExtra && work.consequence && <p className="reading-consequence"><b>如果一直这样</b>{work.consequence}</p>}
       </section>
 
@@ -3271,7 +3278,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           <i aria-hidden="true">→</i>
           <article><span>放到生活里看</span><p>{money.example}</p></article>
         </div>
-        <ReadingSupplement item={moneyExtra} />
+        <ReadingSupplement items={moneyExtra} />
         {!moneyExtra && money.consequence && <p className="reading-consequence"><b>如果一直这样</b>{money.consequence}</p>}
       </section>
 
@@ -3284,7 +3291,7 @@ function ResultSectionV3({ analysis, age, gender }: {
           </div>
           <aside><span>有没有这样的时候</span><strong>{social.example}</strong></aside>
         </div>
-        <ReadingSupplement item={socialExtra} />
+        <ReadingSupplement items={socialExtra} />
         {!socialExtra && social.consequence && <p className="reading-consequence"><b>如果一直这样</b>{social.consequence}</p>}
       </section>
 

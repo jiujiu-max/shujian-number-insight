@@ -107,7 +107,7 @@ export function focusHook(focus: ReturnType<typeof selectReportFocus>, _lead: st
   const specific=pairFocusConcern(focus.star,focus.anchor?.group);
   if(specific) return specific;
   const mood = focus.mood === "mixed" ? focus.anchor?.group.modifierRuns.some(run=>run.position==="trailing" && run.digits.includes("0")) ? "empty" : "hidden" : focus.mood;
-  return focusTrap(focus.star,mood);
+  return _lead || focusTrap(focus.star,mood);
 }
 
 export function freshDetails(text: string, alreadyVisible: string[]) {

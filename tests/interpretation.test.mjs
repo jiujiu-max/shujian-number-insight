@@ -392,7 +392,7 @@ test('different numbers at the same age do not share identical opening cards', (
 });
 
 test('age stages and a single consultation CTA remain available', () => {
-  for (const [age, label] of [[18,'学业与起步期'],[24,'学业与起步期'],[25,'事业积累期'],[34,'事业积累期'],[35,'经验发展期'],[49,'经验发展期'],[50,'生活安排期'],[64,'生活安排期'],[65,'日常生活期'],[90,'日常生活期']]) {
+  for (const [age, label] of [[18,'18—24岁'],[24,'18—24岁'],[25,'25—34岁'],[34,'25—34岁'],[35,'35—49岁'],[49,'35—49岁'],[50,'50—64岁'],[64,'50—64岁'],[65,'65岁以上'],[90,'65岁以上']]) {
     const html = render('18014119334', age);
     assert.ok(html.includes(label));
     assert.equal((html.match(/href="#wechat"/g) ?? []).length, 1);
@@ -456,21 +456,21 @@ test('age scene copy uses concrete everyday actions instead of abstract explanat
   assert.equal(AGE_STAGE_CONTEXTS.flatMap(stage => Object.values(stage.scenes).flat()).length, 120);
   assert.ok(getAgeStageContext(57).scenes.fuwei[1].includes('APP 会员、套餐自动续费的钱，没仔细算过'));
   assert.ok(getAgeStageContext(57).scenes.tianyi[0].includes('说好只帮着看看'));
-  assert.ok(render('18511111111', 57).includes('有的只用过一两次'));
-  assert.ok(render('18511111111', 57).includes('才发现还在扣'));
+  assert.ok(render('18511111111', 57).includes('几个月没打开的会员'));
+  assert.ok(render('18511111111', 57).includes('仍在续费'));
 });
 
 test('work example uses plain words and does not mix job changes with partnership terms', () => {
   const block = render('18512121212',30).split('id="report-growth"')[1].split('</section>')[0];
   assert.ok(block.includes('看看你有没有这样的时候'));
-  assert.ok(block.includes('还没问清要花多久，你先答应没问题'));
+  assert.ok(block.includes('两处地方隔得很远，时间根本接不上'));
   assert.ok(render('18512121212',30).includes('做事的冲劲、事业选择和求财方式'));
   assert.doesNotMatch(block, /放到日常里看|钱怎么算、谁负责|答应时想过要花多少时间吗/);
   assert.ok(getAgeStageContext(20).scenes.jueming[0].includes('实习'));
 });
 
 test('the revised work scene stays in its matched branch instead of becoming a universal template', () => {
-  const revised = '一项需要配合完成的工作还没问清要花多久，你先答应没问题';
+  const revised = '已经约好周末聚餐，你又答应当天帮人取东西';
   const revisedQuestion = '答应时觉得没问题，真做起来才发现，自己根本忙不过来';
   const workBlock = (phone,age) => render(phone,age).split('id="report-growth"')[1].split('</section>')[0];
   assert.ok(workBlock('18512121212',30).includes(revised));
