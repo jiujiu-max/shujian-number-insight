@@ -80,7 +80,7 @@ export function pairFocusConcern(star:PortraitStar,group?:NumberGroup) {
   const domain=TYPE_IDENTITIES[star].domain;
   const concerns:Record<string,Partial<Record<ReadingDomain,string>>>={
     '13':{money:'愿意多做一点，却容易忽略自己的时间和开销'},
-    '31':{money:'自己的预算没说清，一起用钱时容易各想各的'},
+    '31':{money:'心里想存钱，付款时却容易打乱原来的计划'},
     '68':{money:'在意能存下多少，也容易忽略买完以后持续的费用'},
     '86':{money:'价格算得细，付款之后的安排也需要问完整'},
     '49':{money:'几个机会都想尝试，总投入却容易没有算清'},
@@ -91,8 +91,8 @@ export function pairFocusConcern(star:PortraitStar,group?:NumberGroup) {
     '34':{work:'安排排得细，条件变了却可能还守着旧步骤'},
     '26':{work:'熟悉步骤做得稳，换一种问题还需要弄懂原因'},
     '62':{work:'开始有劲头，看不到进展时却容易停下来'},
-    '19':{work:'问题处理好了，别人却未必知道你做过哪些事'},
-    '91':{work:'分工能安排好，也容易把不同做法当成没有照做'},
+    '19':{work:'问题处理好了，方法却没记下，下次还得从头想'},
+    '91':{work:'步骤能安排好，也容易坚持原来的做法不愿调整'},
     '16':{relationship:'先顾对方的反应，自己的需要容易没讲完整'},
     '92':{relationship:'客气地听完，容易被对方当成已经同意'},
     '27':{relationship:'当面愿意听，心里的保留意见却没有说出来'},

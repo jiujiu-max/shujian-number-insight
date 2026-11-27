@@ -398,7 +398,7 @@ test('age stages and a single consultation CTA remain available', () => {
     assert.equal((html.match(/href="#wechat"/g) ?? []).length, 1);
     assert.ok(html.includes('加微信，结合八字细看'));
     const social = html.split('id="report-relationship"')[1].split('</section>')[0];
-    assert.ok(social.includes('为人处事'));
+    assert.ok(social.includes('人际关系'));
     assert.doesNotMatch(social, /夫妻|结婚|恋爱|伴侣|子女/);
   }
 });
@@ -456,22 +456,22 @@ test('age scene copy uses concrete everyday actions instead of abstract explanat
   assert.equal(AGE_STAGE_CONTEXTS.flatMap(stage => Object.values(stage.scenes).flat()).length, 120);
   assert.ok(getAgeStageContext(57).scenes.fuwei[1].includes('APP 会员、套餐自动续费的钱，没仔细算过'));
   assert.ok(getAgeStageContext(57).scenes.tianyi[0].includes('说好只帮着看看'));
-  assert.ok(render('18511111111', 57).includes('几个月没打开的会员'));
-  assert.ok(render('18511111111', 57).includes('仍在续费'));
+  assert.ok(render('18511111111', 57).includes('很久没用的会员'));
+  assert.ok(render('18511111111', 57).includes('一直在扣钱'));
 });
 
 test('work example uses plain words and does not mix job changes with partnership terms', () => {
   const block = render('18512121212',30).split('id="report-growth"')[1].split('</section>')[0];
   assert.ok(block.includes('看看你有没有这样的时候'));
-  assert.ok(block.includes('两处地方隔得很远，时间根本接不上'));
+  assert.ok(block.includes('一口气把东西全倒出来'));
   assert.ok(render('18512121212',30).includes('做事的冲劲、事业选择和求财方式'));
   assert.doesNotMatch(block, /放到日常里看|钱怎么算、谁负责|答应时想过要花多少时间吗/);
   assert.ok(getAgeStageContext(20).scenes.jueming[0].includes('实习'));
 });
 
 test('the revised work scene stays in its matched branch instead of becoming a universal template', () => {
-  const revised = '已经约好周末聚餐，你又答应当天帮人取东西';
-  const revisedQuestion = '答应时觉得没问题，真做起来才发现，自己根本忙不过来';
+  const revised = '想整理柜子里的杂物，你一口气把东西全倒出来';
+  const revisedQuestion = '做到一半才发现分类盒不够';
   const workBlock = (phone,age) => render(phone,age).split('id="report-growth"')[1].split('</section>')[0];
   assert.ok(workBlock('18512121212',30).includes(revised));
   for (const age of [20,42,57,72]) assert.ok(!workBlock('18512121212',age).includes(revised));

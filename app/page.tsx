@@ -3134,11 +3134,12 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   // A full explanation develops the reason and tradeoff. Do not stack the
   // former generic scene and consequence around an almost identical example.
   const sourceDetails = freshDetails(insight.text,[lead,example]);
-  const specificSource = entry?.composition && entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2 && !entry.group.fiveCount;
+  const specificSource = domain==='relationship' && entry?.composition && entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2 && !entry.group.fiveCount;
   const paragraphs = specificSource ? sourceDetails
     : expanded?.explanation ? [...(expanded && 'context' in expanded && expanded.context ? [expanded.context] : []),expanded.explanation].map(text=>freshDetails(text,[lead]).join('')).filter(Boolean) : sourceDetails;
   return {
     lead, text: insight.text, paragraphs,
+    watchout:expanded?.watchout, strength:expanded?.strength, application:expanded?.application, style:expanded?.style,
     question: insight.question ?? portrait.question,
     example, mood, pattern:entry?.group.raw,
     consequence: '',
@@ -3153,7 +3154,7 @@ function consultationDomain(analysis: Analysis): ReadingDomain {
 // random sentence or a modifier borrowed from elsewhere in the number.
 function reportSupplements(analysis: Analysis, domain: ReadingDomain, age: number) {
   const focus=selectReportFocus(analysis),primary=reportReading(analysis,domain,age);
-  type Item={pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string;explanation?:string;context?:string;facetPattern?:string};
+  type Item={pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string;explanation?:string;context?:string;strength?:string;application?:string;style?:string;facetPattern?:string};
   const result:Item[]=[];
   const add=(item:Item)=>{
     if(!item.example || item.example===primary.example)return;
@@ -3198,8 +3199,7 @@ function reportSupplement(analysis: Analysis, domain: ReadingDomain, age: number
 
 function ReadingSupplement({items}: {items:ReturnType<typeof reportSupplements>}) {
   if(!items.length) return null;
-  const detail=(item:typeof items[number])=><div className="reading-supplement" key={`${item.index}-${item.endIndex}-${item.facetPattern??item.pattern}`}><h4>{item.lead}</h4>{item.context && <p>{item.context}</p>}{item.explanation && <p>{item.explanation}</p>}<p>{item.example}</p></div>;
-  return <><div className="reading-supplement"><span>再看一个细节</span><h4>{items[0].lead}</h4>{items[0].context && <p>{items[0].context}</p>}{items[0].explanation && <p>{items[0].explanation}</p>}<p>{items[0].example}</p></div>{items.length>1 && <details className="reading-details"><summary>还有哪些不同的表现</summary>{items.slice(1).map(detail)}</details>}</>;
+  return <details className="reading-details"><summary>还有哪些不同的表现</summary>{items.map(item=><div className="reading-supplement" key={`${item.index}-${item.endIndex}-${item.facetPattern??item.pattern}`}><h4>{item.lead}</h4>{item.application && <p><b>适合发挥的地方：</b>{item.application}</p>}{item.style && <p><b>用钱倾向：</b>{item.style}</p>}{item.context && <p>{item.context}</p>}{item.explanation && <p>{item.explanation}</p>}</div>)}</details>;
 }
 
 function ResultSectionV3({ analysis, age, gender }: {
@@ -3222,15 +3222,15 @@ function ResultSectionV3({ analysis, age, gender }: {
   const radar = buildTypeRadar(analysis.matches, analysis.composition.groups);
   const consultationReading = focus.domain === "money" ? money : focus.domain === "relationship" ? social : work;
   const invitation = consultationFocus(focus.star,age,consultationReading.mood,focusedEntry(analysis,focus.domain)?.group);
-  const watchout = focusHook({...focus,mood:consultationReading.mood},consultationReading.lead);
-  const shareData = makeTypeShareData(analysis.primary.key, analysis.secondary?.key, radar, watchout,focus.role,character.outside.title);
+  const watchout = focusHook({...focus,mood:consultationReading.mood},consultationReading.watchout ?? consultationReading.lead);
+  const shareData = makeTypeShareData(analysis.primary.key, analysis.secondary?.key, radar, watchout,focus.role,character.outside.title,work.strength);
   const visibleCopy = [work.lead,money.lead,social.lead,work.example,money.example,social.example,watchout];
   const outsideScene = freshDetails(character.outside.scene,[...visibleCopy,character.outside.title]).join("")
     || characterExample(focus.star,work.mood,'outside');
   const insideScene = freshDetails(character.inside.scene,[...visibleCopy,outsideScene,character.inside.title]).join("")
     || characterExample(focus.star,work.mood,'inside');
-  const topics = [["性格", "character"], [stage.workNav, "growth"], ["财路", "wealth"],
-    ["处事", "relationship"], ["健康", "health"], ["咨询", "decision"]];
+  const topics = [["性格", "character"], ["优势", "growth"], ["用钱", "wealth"],
+    ["关系", "relationship"], ["健康", "health"], ["咨询", "decision"]];
   const genderLabel = gender === "female" ? "女性" : gender === "male" ? "男性" : "未透露性别";
 
   if (!analysis.matches.length) return (
@@ -3252,33 +3252,35 @@ function ResultSectionV3({ analysis, age, gender }: {
           <p className="type-tagline">{character.outside.title}</p>
           <div className="type-star-line"><span>{type.star} · 主类型</span>{analysis.secondary && <span>也有{EIGHT_TYPES[analysis.secondary.key].name}的一面</span>}</div>
           <div className="type-key-points">
-            <div><span>你的长处</span><p>{type.strength}</p></div>
+            <div><span>你的长处</span><p>{work.strength ?? type.strength}</p></div>
             <div><span>吃亏点</span><p>{watchout}</p></div>
           </div>
           <TypeShare data={shareData} />
         </div>
-        <TypeRadar radar={radar} takeaway={radarTakeaway(focus.star, consultationReading.mood, anchor?.group, consultationReading.lead)} />
+        <TypeRadar radar={radar} takeaway={radarTakeaway(focus.star, consultationReading.mood, anchor?.group, consultationReading.watchout ?? consultationReading.lead)} />
         <p className="type-cultural-note">传统数字文化画像 · 用来观察自己，不是心理测评或事实判定。</p>
       </section>
-      <div className="type-reading-intro"><span>你擅长什么，又容易在哪吃亏？</span><p>性格看在意什么，做事看怎样判断，用钱看取舍，相处看彼此的期待。</p></div>
+      <div className="type-reading-intro"><span>你擅长什么，又容易在哪吃亏？</span><p>先看自己的性格和优势，再看花钱习惯，以及人际关系中容易遇到的问题。</p></div>
 
       <nav className="topic-nav" aria-label="报告分类导航">
         {topics.map(([label, id], index) => <a href={`#report-${id}`} key={id}><b>{String(index + 1).padStart(2, "0")}</b><span>{label}</span></a>)}
       </nav>
 
       <section className="topic-section character-topic" id="report-character">
-        <div className="topic-heading"><span>01 · 性格</span><h3>给人的印象，心里的想法</h3></div>
+        <div className="topic-heading"><span>01 · 性格</span><h3>你是什么样的人</h3></div>
         <div className="character-split">
-          <article><span>别人容易看到</span><h4>{character.outside.title}</h4>{outsideScene && <p>{outsideScene}</p>}</article>
-          <article className="character-inner"><span>你心里在意的</span><h4>{character.inside.title}</h4>{insideScene && <p>{insideScene}</p>}</article>
+          <article><span>平时的你</span><h4>{character.outside.title}</h4>{outsideScene && <p>{outsideScene}</p>}</article>
+          <article className="character-inner"><span>你心里的想法</span><h4>{character.inside.title}</h4>{insideScene && <p>{insideScene}</p>}</article>
         </div>
         {analysis.secondary && <p className="secondary-portrait"><span>你也有这一面 · {EIGHT_TYPES[analysis.secondary.key].name}</span>{EIGHT_TYPES[analysis.secondary.key].strength}</p>}
       </section>
 
       <section className="topic-section growth-topic" id="report-growth">
-        <div className="topic-heading"><span>02 · {stage.workLabel}</span><h3>{age >= 65 ? "平时做事，你总在操心什么" : "做事有什么长处，又容易吃什么亏"}</h3></div>
+        <div className="topic-heading"><span>02 · 优势</span><h3>你的优势</h3></div>
         <div className="growth-summary">
-          <article><span>做事时的判断和习惯</span><strong>{work.lead}</strong>
+          <article><span>你擅长什么</span><strong>{work.lead}</strong>
+            {work.strength && <p>{work.strength}</p>}
+            {work.application && <p><b>适合的工作或任务：</b>{work.application}</p>}
             {work.paragraphs[0] && <p className="reading-explanation">{work.paragraphs[0]}</p>}
             {work.paragraphs.length > 1 && <details className="reading-details on-dark"><summary>再说具体一点</summary>{work.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
@@ -3289,9 +3291,9 @@ function ResultSectionV3({ analysis, age, gender }: {
       </section>
 
       <section className="topic-section" id="report-wealth">
-        <div className="topic-heading"><span>03 · 财路与用钱</span><h3>面对钱，你在意什么，又容易忽略什么</h3></div>
+        <div className="topic-heading"><span>03 · 用钱</span><h3>你的用钱习惯</h3></div>
         <div className="wealth-route">
-          <article><span>涉及钱时，你容易怎么想</span><strong>{money.lead}</strong>
+          <article><span>{money.style ?? "你会怎样决定花这笔钱"}</span><strong>{money.lead}</strong>
             {money.paragraphs[0] && <p className="reading-explanation">{money.paragraphs[0]}</p>}
             {money.paragraphs.length > 1 && <details className="reading-details"><summary>再说具体一点</summary>{money.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
@@ -3303,7 +3305,7 @@ function ResultSectionV3({ analysis, age, gender }: {
       </section>
 
       <section className="topic-section" id="report-relationship">
-        <div className="topic-heading"><span>04 · 为人处事</span><h3>跟人相处，什么让你最费心</h3></div>
+        <div className="topic-heading"><span>04 · 关系</span><h3>人际关系</h3></div>
         <div className="relationship-layout">
           <div><span>{stage.socialPeople}</span><p className="social-reading">{social.lead}</p>
             {social.paragraphs[0] && <p className="reading-explanation">{social.paragraphs[0]}</p>}

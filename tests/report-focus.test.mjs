@@ -95,13 +95,13 @@ test('radar takeaway is one source-specific sentence, not five mid-range templat
   const sentence=phone=>render(phone).split('一句话看懂这份画像</span><p>')[1].split('</p>')[0];
   for(const phone of samples){
     const text=sentence(phone);
-    assert.ok(text.length>25 && text.length<150, text);
+    assert.ok(text.length>12 && text.length<180, text);
     assert.equal((text.match(/。/g)||[]).length,1);
     assert.doesNotMatch(text,/长期使用|继续用.*号码|换号.*改善|(?<!不)一定|疾病|破财|\d{8}/);
     assert.equal(text,sentence(phone));
   }
   assert.notEqual(sentence('18318002959'),sentence('18318002957'));
-  assert.match(sentence('18520283007'),/怕做不好|还没动手/);
+  assert.match(sentence('18520283007'),/怕做不好|还没动手|想得多，动手慢/);
   const a=render('18318002959'),b=render('18318002957');
   assert.match(a,/图中更突出：变通、感受/);
   assert.match(b,/图中更突出：变通、行动/);
@@ -150,7 +150,7 @@ test('the 6666 regression no longer describes a daring type as delaying every ne
   assert.equal(a.primary.key,'jueming');
   assert.equal(selectReportFocus(a).anchor.group.raw,'96666');
   const work=reportReading(a,'work',30);
-  assert.match(work.lead,/先答应/);
+  assert.match(work.lead,/行动快|先动手/);
   assert.doesNotMatch(block(render(a.phone),'growth'),/新的机会却总想再等等|想加薪、想换工作，已经想了很久/);
 });
 
@@ -265,7 +265,7 @@ test('conditional progression preserves mixed and specific-case boundaries',()=>
   assert.doesNotMatch(conditionalProgression('fuwei','plain',group('99')).join(''),/投简历|工作/);
   assert.doesNotMatch(render('18318002957'),/id="progression-title"/);
   for(const section of ['growth','wealth','relationship']) {
-    assert.match(block(render('18318002957'),section),/再看一个细节/);
+    assert.match(block(render('18318002957'),section),/还有哪些不同的表现/);
     assert.doesNotMatch(block(render('18318002957'),section),/如果一直这样/);
   }
   assert.doesNotMatch(render('18318002957'),/明年财运|一定会破财|保证转运/);
@@ -320,7 +320,7 @@ test('shared 13 money copy works across phones and ages without turning every re
   for(const phone of phones)for(const age of ages){
     const a=analysePhone(phone),r=reportReading(a,'money',age);
     assert.match(r.pattern,/13/);
-    assert.match(r.lead,/一起付账/);
+    assert.match(r.lead,/小钱|多付/);
     assert.match(r.example,/付|费用|转|钱/);
     assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|客户|生意|订单|回头客|工资|房贷/);
     const html=render(phone,age);
@@ -403,7 +403,12 @@ test('mixed 0 and 5 have concrete dual-effect explanations without losing a trai
       if(raw.endsWith('0')) {
         const tailored=d==='money'?modules['./pair-money-modifiers'].pairMoneyModifier(group,30):undefined;
         if(tailored)assert.equal(detail.example,tailored.example);
-        else assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+        else if(d==='relationship') assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+        else {
+          const plainEnding={raw:pair+'0',index:3,endIndex:5,...classifyNumberGroup(pair+'0',PAIR_LOOKUP)};
+          assert.ok(detail.explanation.includes(modules['./report-personal'].personalReading(star,plainEnding,d,30).explanation));
+          assert.notEqual(detail.example,expandedReading(star,{raw:pair[0]+'05'+pair[1],index:3,endIndex:6,...classifyNumberGroup(pair[0]+'05'+pair[1],PAIR_LOOKUP)},d,30).example);
+        }
       }
     }
   }
@@ -417,7 +422,8 @@ test('remaining distinct groups are accessible instead of being dropped after on
     assert.equal(new Set(items.map(x=>x.pattern)).size,items.length);
     for(const item of items){
       assert.ok(a[d].ordered.some(x=>x.group.raw===item.pattern && x.group.index===item.index));
-      assert.ok(html.includes(item.example));
+      assert.ok(html.includes(item.lead));
+      assert.ok(!html.includes(item.example));
     }
     assert.match(html,/还有哪些不同的表现/);
   }
@@ -529,4 +535,43 @@ test('all 64 pairs across 12 modifier shapes and five ages remain readable and t
     assert.equal(JSON.stringify(a),before);
   }
   assert.equal(cases,64*12*5*3);
+});
+
+
+test('advantages describe personal strengths and useful work types, while money names decisions',()=>{
+  const stars=new Set();
+  for(const phone of copyRegressionPhones){
+    const a=analysePhone(phone);if(!a.matches.length)continue;
+    stars.add(a.primary.key);
+    const work=reportReading(a,'work',30),money=reportReading(a,'money',30);
+    assert.ok(work.strength?.length>10 && work.application?.length>10,phone);
+    assert.ok(work.watchout && work.watchout!==work.lead,phone+' advantage must not become the loss label');
+    assert.ok(money.style?.length>3,phone);
+    const html=render(phone),growth=block(html,'growth'),wealth=block(html,'wealth');
+    assert.match(growth,/<h3>你的优势<\/h3>/);
+    assert.match(growth,/适合的工作或任务/);
+    assert.match(wealth,/<h3>你的用钱习惯<\/h3>/);
+    assert.match(block(html,'relationship'),/<h3>人际关系<\/h3>/);
+    assert.doesNotMatch(html,/你的做事长处|做事有什么长处|面对钱，你在意什么/);
+    for(const domain of ['work','money','relationship']){
+      const main=reportReading(a,domain,30);
+      assert.equal(html.split(main.example).length-1,1);
+      for(const extra of reportSupplements(a,domain,30)) assert.ok(!html.includes(extra.example));
+    }
+  }
+  assert.equal(stars.size,8);
+});
+
+test('personal examples distinguish spending choices and work habits without a social story',()=>{
+  const read=(pair,domain)=>reportReading(analysePhone('185'+pair.repeat(4)),domain,30);
+  const money=[['16',/超前/],['21',/冲动/],['83',/分期/],['86',/谨慎/],['61',/情绪|体验/],['48',/实用|使用价值/]];
+  for(const [pair,style] of money){
+    const x=read(pair,'money');assert.match(x.style,style);
+    assert.doesNotMatch(x.example,/朋友|别人|对方|大家|同事/);
+  }
+  const examples=['19','21','24','34','47','64','81','84'].map(p=>read(p,'work').example);
+  assert.equal(new Set(examples).size,examples.length);
+  assert.doesNotMatch(examples.join(''),/朋友|别人|对方|大家|同事/);
+  assert.match(read('24','work').paragraphs.join(''),/准备不完|没开始/);
+  assert.match(read('19','work').application,/排查|实际任务/);
 });

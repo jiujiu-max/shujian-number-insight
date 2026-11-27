@@ -1,3 +1,4 @@
+import { personalBase, personalReading } from './report-personal';
 import { pairMoneyModifier } from './pair-money-modifiers';
 import { additionalPairDetail } from './pair-detail-extra';
 import type { PortraitStar } from './star-portraits';
@@ -11,9 +12,11 @@ import { modifierAgeScene } from './report-scenes';
 // Editorial expansions of existing pair meanings. No new matches or scores.
 // A concrete pair takes priority over a broad type; 0/5 never falls through
 // to an unmodified pair story. Age supplies an example, not a life history.
-type Detail = { lead?: string; context?: string; explanation: string; example: string };
+type Detail = { lead?: string; context?: string; explanation: string; example: string; strength?:string; application?:string; style?:string; watchout?:string };
 export function pairDetail(group: NumberGroup | undefined, domain: ReadingDomain, age: number): Detail | undefined {
   if (!group || group.zeroCount || group.fiveCount) return;
+  const own = personalBase(group.stars[0],group.base.slice(0,2),domain,age,true);
+  if(own)return own;
   const i = age <= 24 ? 0 : age <= 34 ? 1 : age <= 49 ? 2 : age <= 64 ? 3 : 4;
   const task = ['一次周末出游','一次朋友聚会','一次共同出行','一次聚餐','一次结伴出游'][i];
   const purchase = ['耳机','电脑','一件家用电器','手机','一件厨房电器'][i];
@@ -196,7 +199,7 @@ function coreExpandedReading(star: PortraitStar, group: NumberGroup | undefined,
 // Retain a pair's documented subject alongside its 0/5 expression. The plain
 // example is not reused as a modified example, and concrete course exceptions
 // retain their own meaning. No extra weight or outcome prediction is added.
-export function expandedReading(star:PortraitStar,group:NumberGroup|undefined,domain:ReadingDomain,age:number):Detail|undefined {
+function legacyExpandedReading(star:PortraitStar,group:NumberGroup|undefined,domain:ReadingDomain,age:number):Detail|undefined {
   const tailored=group&&domain==='money'?pairMoneyModifier(group,age):undefined;
   const detail=tailored??coreExpandedReading(star,group,domain,age);
   if(!detail || !group || (!group.zeroCount&&!group.fiveCount))return detail;
@@ -209,4 +212,20 @@ export function expandedReading(star:PortraitStar,group:NumberGroup|undefined,do
   return {...detail,context:context||undefined,
     explanation:detail.explanation+(growing?'这次做顺手了，下次就容易照旧；即使换了人、换了要求，也可能没有再问一遍。':''),
     example:detail.example+(growing?'下次碰到差不多的事，你又照上次办了。':'')};
+}
+
+// Personal strengths and spending decisions are independent of the relationship
+// chapter. Course exceptions keep their concrete subject and 0/5 mechanism.
+export function expandedReading(star:PortraitStar,group:NumberGroup|undefined,domain:ReadingDomain,age:number):Detail|undefined {
+ if(domain==='relationship')return legacyExpandedReading(star,group,domain,age);
+ const own=personalReading(star,group,domain,age)!;
+ const tailored=group&&domain==='money'?pairMoneyModifier(group,age):undefined;
+ if(tailored)return {...own,...tailored,watchout:tailored.lead};
+ const special=group && (['856','154','145','959'].includes(group.raw)||group.base==='82'||(star==='tianyi'&&domain==='money'&&group.fiveCount&&!group.zeroCount));
+ if(special) {
+  const detail=legacyExpandedReading(star,group,domain,age);
+  if(detail)return {...own,...detail,lead:detail.lead??own.lead,watchout:detail.explanation.split('。').filter(Boolean).at(-1)+'。',
+   ...(domain==='money'&&star==='tianyi'&&group.fiveCount?{style:'会考虑付出和回报，也要算上自己的时间',lead:'多拿了一点钱，也多花了不少时间。'}:{})};
+ }
+ return own;
 }

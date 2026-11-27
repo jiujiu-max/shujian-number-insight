@@ -106,9 +106,9 @@ export type TypeShareData = {
   name: string; word: string; tagline: string; strength: string; watchout: string;
   secondary: string; values: DimensionVector; url: string; role: string;
 };
-export function makeTypeShareData(key: PortraitStar, secondary: PortraitStar | undefined, radar: RadarProfile, watchout: string, role = "", motto?: string): TypeShareData {
+export function makeTypeShareData(key: PortraitStar, secondary: PortraitStar | undefined, radar: RadarProfile, watchout: string, role = "", motto?: string, strength?:string): TypeShareData {
   const type = EIGHT_TYPES[key];
-  return { name: type.name, word: type.word, tagline: motto ?? type.tagline, strength: type.strength,
+  return { name: type.name, word: type.word, tagline: motto ?? type.tagline, strength: strength ?? type.strength,
     watchout, role, secondary: secondary ? EIGHT_TYPES[secondary].name : "", values: [...radar.values], url: SITE_URL };
 }
 
