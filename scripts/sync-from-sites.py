@@ -103,6 +103,12 @@ def main() -> int:
                 data = replace_once(data, SOURCE_URL.encode(), PUBLIC_URL.encode(), name)
             elif name == "app/globals.css":
                 data = replace_once(data, b'url("/og-v5.png")', b'url("/og-v5.jpg")', name)
+            elif name == "app/page.tsx":
+                # Published Sites 59 is accepted by Vinext, but Next requires
+                # this client directive before imports. Content is unchanged.
+                legacy_header = b"import { transitionDetail } from './report-transition-detail';\n\"use client\";"
+                if data.startswith(legacy_header):
+                    data = replace_once(data, legacy_header, b"\"use client\";\n\nimport { transitionDetail } from './report-transition-detail';", name)
             desired[name] = data
     for name in sorted(COPY_PUBLIC):
         if name not in source_paths:

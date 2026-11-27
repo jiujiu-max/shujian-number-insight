@@ -30,3 +30,5 @@ git push origin main
 ```
 
 `SHUJIAN_SITES_CHECKOUT` 是原站本地工程路径；`SHUJIAN_PUBLISHED_SHA` 必须从已发布 Sites 版本取得。脚本只读取该提交，不会复制工作区中尚未提交的改动。网页元信息、域名链接、背景 JPG 和入口二维码为 GitHub Pages 专用；原站布局元信息、依赖配置、OG 图片或新增公开素材变化时，脚本会停止并要求人工核对。GitHub Actions 成功后，再核验自有域名。这个流程需在原站每次发布后执行；Sites 不会自行推送到 GitHub。
+
+原站版本59的 `app/page.tsx` 将新导入写在 `use client` 声明之前，Vinext 可以构建，Next 静态构建要求声明在最前。同步脚本仅对该已知文件头调整顺序；原站后续修复后此适配自动不再生效，报告内容保持来源提交的原文。
