@@ -1,3 +1,4 @@
+import { ADDITIONAL_PAIR_CHARACTERS } from './pair-character-extra';
 import type { PortraitStar } from "./star-portraits";
 
 export type CharacterVoice = { title: string; scene: string };
@@ -8,6 +9,7 @@ const voice = (title: string, scene: string): CharacterVoice => ({ title, scene 
 // These distinctions supplement the eight-star portraits; they do not change
 // pair classification, strength, or the meaning of any unrecognised pattern.
 export const PAIR_CHARACTERS: Record<string, { outside: CharacterVoice; inside: CharacterVoice }> = {
+  ...ADDITIONAL_PAIR_CHARACTERS,
   "11": { outside: voice("慢热，熟悉以后能一直处下去", "刚认识时话不一定多，先看看对方怎么做事。相处久了，答应过的事会记着，也不喜欢来回变。你需要先知道彼此的做事方式，才会放心参与。稳定下来以后，更看重约定有没有一直被遵守。"), inside: voice("事情没想清楚，就想再确认一次", "别人觉得已经说定了，你还会想有没有漏掉什么。同一个问题，有时问过了还想再问一遍。你想确认的不只是答案，还有条件有没有发生变化。别人以为你没听进去，你却是在核对这次是否仍能按上次的理解来做。") },
   "22": { outside: voice("不急着表态，先看看靠不靠谱", "别人说得再热闹，你也想先弄清楚。没把握的事，不太愿意当场答应。你会留意对方说的和做的是否一致，信任往往是在几次相处后慢慢建立的。"), inside: voice("怕选错，所以总想再等等", "不是没想法，是担心做了以后后悔。多问了几个人，又多了几种意见，反而更难决定。每个建议都有道理，却也各有缺点。你怕自己承担选错的结果，便想再问一个人，最后反而更难听见原本的想法。") },
   "33": { outside: voice("有耐心，愿意把没做完的事接着做", "同一件事别人已经烦了，你还愿意继续处理。熟悉的步骤不想随便改，也常帮人把剩下的事做完。你能从把一件小事做完整里获得踏实感，所以即使没人催，也愿意把最后的细节处理完。"), inside: voice("明明做完了，还是有点放不下", "事情交出去了，还会想是不是漏了哪里。别人说可以了，你有时还想再看一遍。你怕遗漏的地方影响别人使用，因此很难只凭一句完成了就让自己停下。有时继续检查，是为了缓解自己的不放心。") },

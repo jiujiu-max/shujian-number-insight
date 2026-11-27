@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {analysePhone,reportReading,reportSupplement,reportSupplements,consultationDomain,render,modules,copyRegressionPhones,buildTypeRadar,makeTypeShareData,classifyNumberGroup,compositionReading,PAIR_LOOKUP} from './report-harness.mjs';
+import {analysePhone,reportReading,reportSupplement,reportSupplements,consultationDomain,render,modules,copyRegressionPhones,buildTypeRadar,makeTypeShareData,classifyNumberGroup,compositionReading,PAIR_LOOKUP,PAIR_VOICES} from './report-harness.mjs';
 
 const {selectReportFocus,TYPE_IDENTITIES,focusHook,freshDetails}=modules['./report-focus'];
 const samples=['18520283007','17637056891','18945092756','13145924272','14704851410','18466196666','15207558336','15342204620','18318002959','18318002957'];
 const ages=[20,30,42,57,72];
 const block=(html,id)=>html.split(`id="report-${id}"`)[1].split('</section>')[0];
 
-test('extra detail is drawn from a different real group, remains deterministic and never duplicates its main example',()=>{
+test('extra detail is drawn from a real group facet or adjacent transition and never duplicates its main example',()=>{
   let count=0;
   for(const phone of copyRegressionPhones){
     const a=analysePhone(phone),before=JSON.stringify(a),focus=selectReportFocus(a);
@@ -15,8 +15,10 @@ test('extra detail is drawn from a different real group, remains deterministic a
       const extra=reportSupplement(a,domain,30);
       if(!extra)continue;
       count++;
-      assert.ok(a[domain].ordered.some(e=>e.group.raw===extra.pattern && e.group.index===extra.index && e.group.endIndex===extra.endIndex));
-      assert.ok(extra.index!==focus.anchor.group.index || extra.endIndex!==focus.anchor.group.endIndex);
+      const source=a[domain].ordered.find(e=>e.group.raw===extra.pattern && e.group.index===extra.index && e.group.endIndex===extra.endIndex);
+      const transition=a[domain].ordered.some(e=>e.supplements?.some(t=>t.pattern===extra.pattern&&t.index===extra.index));
+      assert.ok(source||transition);
+      if(source&&extra.index===focus.anchor.group.index&&extra.endIndex===focus.anchor.group.endIndex)assert.ok(extra.facetPattern&&source.matches.some(m=>m.basePair===extra.facetPattern));
       assert.equal(a.phone.slice(extra.index,extra.endIndex+1),extra.pattern);
       assert.notEqual(extra.example,reportReading(a,domain,30).example);
       assert.equal(JSON.stringify(extra),JSON.stringify(reportSupplement(a,domain,30)));
@@ -24,7 +26,7 @@ test('extra detail is drawn from a different real group, remains deterministic a
     assert.equal(JSON.stringify(a),before);
   }
   assert.ok(count>20);
-  assert.equal(reportSupplement(analysePhone('18518181818'),'work',30),undefined);
+  assert.equal(reportSupplement(analysePhone('18511111111'),'work',30),undefined);
 });
 
 test('character cards have real explanations and the type gallery is removed',()=>{
@@ -283,7 +285,7 @@ test('concrete pair details distinguish decisions and shared expenses without as
   assert.notEqual(pairDetail(group('13'),'money',30).example,pairDetail(group('31'),'money',30).example);
   assert.equal(pairDetail(group('104'),'work',30),undefined);
   assert.equal(pairDetail(group('154'),'work',30),undefined);
-  assert.match(expandedReading('tianyi',group('1053'),'money',30).explanation,/主动争取.*到账日期/);
+  assert.match(expandedReading('tianyi',group('1053'),'money',30).explanation,/争取该拿的钱.*哪天给.*没有问清/);
   for(const age of ages){
     const repeated=expandedReading('shengqi',group('8002'),'money',age);
     assert.match(repeated.example,/前一笔.*又付了一次/);
@@ -398,7 +400,11 @@ test('mixed 0 and 5 have concrete dual-effect explanations without losing a trai
       const detail=expandedReading(star,group,d,30);
       assert.ok(detail.explanation.length>40 && detail.example.length>35);
       assert.doesNotMatch(detail.example,/同事|客户|公司|老板|开会|工资|副业|简历|约好约|钱的钱/);
-      if(raw.endsWith('0'))assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+      if(raw.endsWith('0')) {
+        const tailored=d==='money'?modules['./pair-money-modifiers'].pairMoneyModifier(group,30):undefined;
+        if(tailored)assert.equal(detail.example,tailored.example);
+        else assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+      }
     }
   }
 });
@@ -428,4 +434,99 @@ test('all report cohorts use ordinary daily scenes without assigning a job or sc
       assert.doesNotMatch(examples.join(''),/同学|作业|实习|已经退休|已经结婚/);
     }
   }
+});
+
+
+test('all 64 pair personalities and 77 documented domain distinctions are covered',()=>{
+  const characters=modules['./character-readings'].PAIR_CHARACTERS;
+  const {pairDetail,expandedReading}=modules['./report-detail'];
+  assert.equal(Object.keys(characters).length,64);
+  let count=0;
+  for(const domain of ['work','money','relationship']){
+    const seen=new Map();
+    for(const [pair,voice] of Object.entries(PAIR_VOICES)){
+      assert.ok(characters[pair].outside.scene.length>25&&characters[pair].inside.scene.length>25,pair);
+      if(!voice[domain])continue;
+      count++;
+      const group={raw:pair,index:3,endIndex:4,...classifyNumberGroup(pair,PAIR_LOOKUP)};
+      const detail=pairDetail(group,domain,30)??expandedReading(group.stars[0],group,domain,30);
+      assert.ok(detail?.explanation&&detail.example,pair+' '+domain);
+      if(seen.has(detail.explanation))assert.equal(voice[domain],seen.get(detail.explanation),pair+' lost a distinct source meaning');
+      seen.set(detail.explanation,voice[domain]);
+    }
+  }
+  assert.equal(count,77);
+});
+
+test('all 235 documented triple-domain readings reach the report at their actual positions',()=>{
+  const {TRANSITION_COVERAGE,transitionDetail}=modules['./report-transition-detail'];
+  let count=0;
+  for(const row of TRANSITION_COVERAGE)for(const pattern of row.patterns){
+    const a=analysePhone('185'+pattern.padEnd(8,pattern.at(-1)));
+    assert.ok(a[row.domain].ordered.some(e=>e.group.raw===pattern||e.supplements?.some(s=>s.pattern===pattern)));
+    const expected=transitionDetail(pattern,row.domain,30);
+    const visible=[reportReading(a,row.domain,30),...reportSupplements(a,row.domain,30)];
+    assert.ok(visible.some(r=>r.example===expected.example),pattern+' '+row.domain);
+    assert.equal(transitionDetail(pattern[0]+'0'+pattern.slice(1),row.domain,30),undefined);
+    assert.equal(transitionDetail(pattern[0]+'5'+pattern.slice(1),row.domain,30),undefined);
+    count++;
+  }
+  assert.equal(count,235);
+  assert.equal(transitionDetail('27939132','money',30),undefined);
+});
+
+test('merged forward and reverse pairs retain both meanings, including under modifiers',()=>{
+  const {expandedReading,pairDetail}=modules['./report-detail'];
+  const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
+  const a=analysePhone('18514141414');
+  const main=reportReading(a,'money',30),extra=reportSupplements(a,'money',30);
+  assert.equal(main.example,pairDetail(group('14'),'money',30).example);
+  assert.ok(extra.some(r=>r.facetPattern==='41'&&r.example===pairDetail(group('41'),'money',30).example));
+  const modified=expandedReading('shengqi',group('10414'),'money',30);
+  assert.ok(modified.context.includes(pairDetail(group('14'),'money',30).explanation));
+  assert.ok(modified.context.includes(pairDetail(group('41'),'money',30).explanation));
+});
+
+test('the four money subjects remain different with hidden, visible, trailing and mixed modifiers',()=>{
+  const {expandedReading}=modules['./report-detail'];
+  const forms=(a,b)=>[a+'0'+b,a+'5'+b,a+b+'0',a+b+'5',a+'05'+b,a+'5'+b+'0'];
+  const pairs=['16','18','37','63'];
+  for(let form=0;form<6;form++)for(const age of ages){
+    const details=pairs.map(p=>{const raw=forms(...p)[form];const g={raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)};return expandedReading(g.stars[0],g,'money',age)});
+    assert.equal(new Set(details.map(d=>d.lead)).size,4);
+    assert.equal(new Set(details.map(d=>d.example)).size,4);
+    assert.match(details[0].explanation,/钱.*(没来|没拿|晚|收到)/);
+    assert.match(details[1].explanation,/生活费|吃饭/);
+    assert.match(details[2].explanation,/什么时候还|还钱|哪天|日期/);
+    assert.match(details[3].explanation,/问|开口|联系/);
+  }
+});
+
+test('mixed character retains an ending zero instead of always becoming hidden',()=>{
+  const {characterDetail}=modules['./report-conversation'];
+  const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
+  for(const pair of ['14','13','19','11','12','18','16','17']){
+    const a=group(pair[0]+'5'+pair[1]+'0'),b=group(pair[0]+'05'+pair[1]),c=group(pair+'0');
+    const ending=characterDetail(a.stars[0],a),hidden=characterDetail(b.stars[0],b),empty=characterDetail(c.stars[0],c);
+    assert.equal(ending.inside.title,empty.inside.title);
+    assert.notEqual(ending.inside.title,hidden.inside.title);
+  }
+});
+
+test('all 64 pairs across 12 modifier shapes and five ages remain readable and traceable',()=>{
+  const shapes=(a,b)=>[a+b,a+'0'+b,a+'5'+b,a+b+'0',a+b+'5','0'+a+b,'5'+a+b,a+'05'+b,a+'50'+b,a+'5'+b+'0',a+'0'+b+'5',a+'00'+b];
+  let cases=0;
+  for(const pair of Object.keys(PAIR_VOICES))for(const raw of shapes(...pair)){
+    const a=analysePhone('185'+raw.padEnd(8,pair[1])),before=JSON.stringify(a);
+    for(const age of ages)for(const domain of ['work','money','relationship']){
+      const main=reportReading(a,domain,age),extras=reportSupplements(a,domain,age);
+      assert.ok(main.lead&&main.paragraphs.length&&main.example.length>25,raw+' '+domain);
+      assert.doesNotMatch([main.lead,...main.paragraphs,main.example,...extras.flatMap(e=>[e.lead,e.context,e.explanation,e.example])].join(''),/undefined|\[object Object\]|熟人|同事|客户|老板|工资|交付|尚未结清|占住开销/);
+      for(const extra of extras)assert.equal(a.phone.slice(extra.index,extra.endIndex+1),extra.pattern);
+      assert.equal(new Set([main.example,...extras.map(e=>e.example)]).size,extras.length+1);
+      cases++;
+    }
+    assert.equal(JSON.stringify(a),before);
+  }
+  assert.equal(cases,64*12*5*3);
 });

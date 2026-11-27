@@ -1,3 +1,4 @@
+import { PAIR_CHARACTERS } from './character-readings';
 import type { PortraitStar } from "./star-portraits";
 import { pairFocusConcern, type ModifierMood } from "./report-focus";
 import type { ReadingDomain } from "./combination-readings";
@@ -198,14 +199,15 @@ const EMPTY_PRIORITIES: Record<PortraitStar,[string,string,string,string]> = {
  liusha:['前面愿意配合，累了以后会减少回应','你会尽量照顾别人，但自己的不舒服若一直没被说明，就会逐渐积累。后来不想再参加、不愿再解释，别人看见的是你突然冷下来，没有看见前面的过程。','希望付出被珍惜，也想保留自己的需要','让你为难的常是两件事同时存在：既不想让对方失望，也不想再忽略自己。一直只顾前者，最后可能连本来愿意做的事都觉得勉强。'],
  huohai:['想把话讲明白，僵住之后却不想再说','一开始你愿意解释，来回几次仍没有被理解，就会感到再说也一样。外表像已经不在意，实际只是还没找到双方都能听进去的说法。','不甘心被误解，又不想重复争执','你想要的是对方听懂原意，争执之后却可能只记住彼此不舒服的部分。重新谈会让你担心再吵一次，所以那件事留在心里，迟迟没有真正结束。'],
 };
-export function characterDetail(star:PortraitStar,group?:NumberGroup) {
+function modifierCharacterDetail(star:PortraitStar,group?:NumberGroup) {
   if(!group || (!group.zeroCount && !group.fiveCount) || group.base==='99') return;
+  const empty=group.modifierRuns.some(run=>run.position==='trailing' && run.digits.includes('0'));
   if(group.zeroCount && group.fiveCount) {
-    const [insideTitle,insideScene]=[HIDDEN_PRIORITIES[star][2],HIDDEN_PRIORITIES[star][3]];
+    const priority=(empty?EMPTY_PRIORITIES:HIDDEN_PRIORITIES)[star];
+    const [insideTitle,insideScene]=[priority[2],priority[3]];
     const names:Record<PortraitStar,string>={shengqi:'能主动联系，也会怕追问让人不舒服',tianyi:'愿意主动付出，自己的期待却说得少',yannian:'能站出来负责，也有没讲清的要求',fuwei:'熟悉的事会认真做，新选择仍想再等等',jueming:'答应时有冲劲，吃力时却不愿开口',wugui:'能讲出新主意，也有没告诉别人的打算',liusha:'喜欢会表现出来，委屈却常先藏着',huohai:'有话愿意说，真正的不满却未必说透'};
-    return {outside:{title:names[star],scene:characterExample(star,'visible','outside')+'但有些为难或不愿意的地方，又没有讲出来。别人只看见你当时的回应，未必知道你还有顾虑。'},inside:{title:insideTitle,scene:insideScene}};
+    return {outside:{title:names[star],scene:characterExample(star,'visible','outside')+(empty?EMPTY_PRIORITIES[star][1]:'但有些为难或不愿意的地方，又没有讲出来。别人只看见你当时的回应，未必知道你还有顾虑。')},inside:{title:insideTitle,scene:insideScene}};
   }
-  const empty=group.zeroCount && group.modifierRuns.some(run=>run.position==='trailing');
   if(group.zeroCount) {
     const [outsideTitle,outsideScene,insideTitle,insideScene]=(empty?EMPTY_PRIORITIES:HIDDEN_PRIORITIES)[star];
     return {outside:{title:outsideTitle,scene:outsideScene},inside:{title:insideTitle,scene:insideScene}};
@@ -213,4 +215,17 @@ export function characterDetail(star:PortraitStar,group?:NumberGroup) {
   const [title,scene]=INNER_PRIORITIES[star];
   const titles:Record<PortraitStar,string>={shengqi:'会主动了解别人，也愿意分享有用的信息',tianyi:'认真对待约定，也会主动回应别人的需要',yannian:'遇到没人安排的事，愿意站出来负责',fuwei:'喜欢把步骤问明白，再认真重复做好',jueming:'有了想法，愿意先试一次',wugui:'对新方法好奇，也愿意把发现讲给别人',liusha:'会留意小细节，也愿意表达自己的喜好',huohai:'有不同想法，愿意直接说明'};
   return {outside:{title:titles[star],scene:characterExample(star,'visible','outside')},inside:{title,scene}};
+}
+
+export function characterDetail(star:PortraitStar,group?:NumberGroup) {
+  const modified=modifierCharacterDetail(star,group);if(!modified||!group)return modified;
+  const pairs=Array.from({length:Math.max(0,group.base.length-1)},(_,i)=>group.base.slice(i,i+2));
+  const pair=pairs.find(p=>p[0]!==p[1])??pairs[0];
+  const base=PAIR_CHARACTERS[pair];if(!base)return modified;
+  const mixed=group.zeroCount&&group.fiveCount;
+  const empty=group.modifierRuns.some(run=>run.position==='trailing'&&run.digits.includes('0'));
+  const outward=mixed?(empty?EMPTY_PRIORITIES[star][1]:'但碰到自己为难、不愿意的地方，你又未必说出来。别人听见了你的建议，却不知道你还有哪些顾虑。'):modified.outside.scene;
+  const inward=base.inside.scene.match(/[^。！？]+[。！？]?/g)?.slice(0,2).join('')??base.inside.scene;
+  return {outside:{title:base.outside.title,scene:base.outside.scene+outward},
+    inside:{title:modified.inside.title,scene:inward+modified.inside.scene}};
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { transitionDetail } from './report-transition-detail';
+
 import { FormEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { COMBINATION_READINGS, type ReadingDomain } from "./combination-readings";
 import { STAR_PORTRAITS, PAIR_DOMAIN_LEADS } from "./star-portraits";
@@ -3124,7 +3126,8 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   const key = focus.star;
   const portrait = STAR_PORTRAITS[key][domain];
   const mood = modifierMood(entry?.group);
-  const expanded = expandedReading(key,entry?.group,domain,age);
+  const transition=entry && !entry.group.zeroCount && !entry.group.fiveCount ? transitionDetail(entry.group.raw,domain,age) : undefined;
+  const expanded = transition ?? expandedReading(key,entry?.group,domain,age);
   const lead = expanded?.lead ?? insight.lead ?? portrait.lead;
   const example = expanded?.example ?? specificEverydayScene(entry?.group,domain,age)
     ?? modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age);
@@ -3133,7 +3136,7 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   const sourceDetails = freshDetails(insight.text,[lead,example]);
   const specificSource = entry?.composition && entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2 && !entry.group.fiveCount;
   const paragraphs = specificSource ? sourceDetails
-    : expanded?.explanation ? [expanded.explanation] : sourceDetails;
+    : expanded?.explanation ? [...(expanded && 'context' in expanded && expanded.context ? [expanded.context] : []),expanded.explanation].map(text=>freshDetails(text,[lead]).join('')).filter(Boolean) : sourceDetails;
   return {
     lead, text: insight.text, paragraphs,
     question: insight.question ?? portrait.question,
@@ -3149,26 +3152,43 @@ function consultationDomain(analysis: Analysis): ReadingDomain {
 // Additional detail comes from another actually matched composition, never a
 // random sentence or a modifier borrowed from elsewhere in the number.
 function reportSupplements(analysis: Analysis, domain: ReadingDomain, age: number) {
-  const focus = selectReportFocus(analysis);
-  const primary = reportReading(analysis,domain,age);
-  const candidates = (analysis[domain].ordered ?? []).filter(entry =>
-    entry.group.stars.length === 1
-    && !(entry.group.index === focus.anchor?.group.index && entry.group.endIndex === focus.anchor?.group.endIndex)
-    && entry.lead !== primary.lead);
-  // Prefer a genuinely different facet. Preserve left-to-right order for ties.
-  candidates.sort((a,b)=>Number(b.group.stars[0]!==focus.star)-Number(a.group.stars[0]!==focus.star));
-  const result: {pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string}[]=[];
-  for(const entry of candidates) {
-    const key = entry.group.stars[0], mood = modifierMood(entry.group);
-    const specific = ['856','154','145','959'].includes(entry.group.raw) || entry.group.base==='99' || entry.group.base==='82' && mood==='plain';
-    const detail = freshDetails(entry.text,[entry.lead,primary.lead,primary.example,...primary.paragraphs]).join('');
-    const expanded = expandedReading(key,entry.group,domain,age);
-    const lead = expanded?.lead ?? entry.lead;
-    const example = expanded?.example ?? specificEverydayScene(entry.group,domain,age) ?? (specific || mood==='mixed' ? detail
-      : modifierAgeScene(key,mood,domain,age) ?? everydayScene(key,domain,age));
-    if(!example || example===primary.example || primary.paragraphs.some(p=>p.includes(example))) continue;
-    if(result.some(item=>item.example===example)) continue;
-    result.push({pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,lead,example});
+  const focus=selectReportFocus(analysis),primary=reportReading(analysis,domain,age);
+  type Item={pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string;explanation?:string;context?:string;facetPattern?:string};
+  const result:Item[]=[];
+  const add=(item:Item)=>{
+    if(!item.example || item.example===primary.example)return;
+    if(result.some(other=>other.example===item.example))return;
+    result.push({...item,explanation:item.explanation?freshDetails(item.explanation,[item.lead]).join(''):undefined});
+  };
+  const entries=[...(analysis[domain].ordered??[])];
+  entries.sort((a,b)=>Number(b.group.stars[0]!==focus.star)-Number(a.group.stars[0]!==focus.star));
+  for(const entry of entries){
+    if(entry.group.stars.length!==1)continue;
+    const key=entry.group.stars[0],mood=modifierMood(entry.group);
+    const isPrimary=entry.group.index===focus.anchor?.group.index&&entry.group.endIndex===focus.anchor?.group.endIndex;
+    const main=(!entry.group.zeroCount&&!entry.group.fiveCount?transitionDetail(entry.group.raw,domain,age):undefined)??expandedReading(key,entry.group,domain,age);
+    if(!isPrimary&&main)add({pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,lead:main.lead??entry.lead,...main});
+    // Repeated/alternating same-star groups can contain distinct pair meanings.
+    // They remain part of their original group; no extra score is introduced.
+    if(!entry.group.zeroCount&&!entry.group.fiveCount){
+      const seen=new Set<string>();
+      for(const match of entry.matches){
+        if(match.key==='fuwei'&&key!=='fuwei'||seen.has(match.basePair))continue;
+        seen.add(match.basePair);
+        const group={raw:match.basePair,index:match.index,endIndex:match.endIndex,...classifyNumberGroup(match.basePair,PAIR_LOOKUP)};
+        const detail=expandedReading(key,group,domain,age);
+        if(!detail)continue;
+        add({pattern:entry.group.raw,index:entry.group.index,endIndex:entry.group.endIndex,key,mood,facetPattern:match.basePair,
+          lead:detail.lead??buildDomainInsight([match],domain).lead??firstSentence(detail.explanation),...detail});
+      }
+    }
+  }
+  // The analyser already checks adjacency and absence of intervening modifiers.
+  // Keep those ordered triple readings visible instead of discarding them when
+  // a longer explanation is selected for the pair that starts the triple.
+  for(const entry of analysis[domain].ordered??[])for(const supplement of entry.supplements??[]){
+    const detail=transitionDetail(supplement.pattern,domain,age);if(!detail)continue;
+    add({pattern:supplement.pattern,index:supplement.index,endIndex:supplement.index+2,key:entry.group.stars[0],mood:'plain',...detail});
   }
   return result;
 }
@@ -3178,8 +3198,8 @@ function reportSupplement(analysis: Analysis, domain: ReadingDomain, age: number
 
 function ReadingSupplement({items}: {items:ReturnType<typeof reportSupplements>}) {
   if(!items.length) return null;
-  const detail=(item:typeof items[number])=><div className="reading-supplement" key={`${item.index}-${item.endIndex}`}><h4>{item.lead}</h4><p>{item.example}</p></div>;
-  return <><div className="reading-supplement"><span>再看一个细节</span><h4>{items[0].lead}</h4><p>{items[0].example}</p></div>{items.length>1 && <details className="reading-details"><summary>还有哪些不同的表现</summary>{items.slice(1).map(detail)}</details>}</>;
+  const detail=(item:typeof items[number])=><div className="reading-supplement" key={`${item.index}-${item.endIndex}-${item.facetPattern??item.pattern}`}><h4>{item.lead}</h4>{item.context && <p>{item.context}</p>}{item.explanation && <p>{item.explanation}</p>}<p>{item.example}</p></div>;
+  return <><div className="reading-supplement"><span>再看一个细节</span><h4>{items[0].lead}</h4>{items[0].context && <p>{items[0].context}</p>}{items[0].explanation && <p>{items[0].explanation}</p>}<p>{items[0].example}</p></div>{items.length>1 && <details className="reading-details"><summary>还有哪些不同的表现</summary>{items.slice(1).map(detail)}</details>}</>;
 }
 
 function ResultSectionV3({ analysis, age, gender }: {
