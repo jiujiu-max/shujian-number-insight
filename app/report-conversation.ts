@@ -187,7 +187,7 @@ const HIDDEN_PRIORITIES: Record<PortraitStar,[string,string,string,string]> = {
  jueming:['不轻易示弱，难处常留给自己消化','别人问进度时，你倾向于先说还能处理。你想等问题解决了再解释，因此外人看到的是你仍在推进，未必知道其中哪一步已经超出自己的时间或能力。','怕承认吃力，会让人怀疑自己的承诺','你在意说过的话能不能兑现，所以很难把需要帮助和做不到分开看。明明只是某一步需要别人配合，也可能先觉得开口会显得自己不够有本事。'],
  wugui:['心里已经改了想法，嘴上还说没定','你会不断调整判断，希望等方案完整以后再告诉别人。别人还按上一次说好的安排做，却不知道你已经在考虑另外几种办法。','想先弄清别人没说出的意思','信息不完整时，你会自行补出几种解释。你担心直接问显得多疑，便想先靠观察确定；可观察越久，也可能越难分清哪些是事实、哪些只是自己的猜想。'],
  liusha:['能照顾现场气氛，不舒服时也先收着','别人说笑时，你可能仍然接话、配合，过后才慢慢反应出哪里让自己难受。对方只看到了当时的回应，就不知道那件小事在你心里还没有过去。','希望不必说出口，也能被体谅','你很会留意别人，因此也盼着别人能注意到自己的变化。可双方察觉细节的习惯不同，你的沉默未必会被理解成委屈，有时只会被看作想安静一会儿。'],
- huohai:['有不同意见，也会因为怕冲突而先忍住','你心里往往已经组织好要说什么，却会先想说完后会不会争起来。暂时不说能维持表面的平静，但别人也就不知道你真正反对的是哪一点。','事情没说清，心里就很难真正放下','即使已经说了算了，你仍可能在回想当时怎样表达才合适。让你惦记的不只是那句话，而是自己的意思没有被理解，问题却像已经结束了一样。'],
+ huohai:['有不同意见，也会因为怕冲突而先忍住','你心里往往已经组织好要说什么，却会先想说完后会不会争起来。暂时不说能维持表面的平静，但别人也就不知道你真正反对的是哪一点。','有意见没说出来，过后还会反复想','你怕当场争起来，可能先说算了。过后又觉得自己的意见没被听见，反复想当时应该怎样说。'],
 };
 const EMPTY_PRIORITIES: Record<PortraitStar,[string,string,string,string]> = {
  shengqi:['愿意维持来往，失望时也不急着翻脸','对方一次没有做到，你会先考虑是不是遇到困难。这样能给关系留余地，但若每次都替对方解释，别人可能一直不知道自己的承诺对你有多重要。','想相信别人，又怕再次空等','你介意的并不只是事情没办成，还有自己认真留了时间、准备了材料，却没得到明确答复。下次再听到保证，会在期待和犹豫之间来回想。'],
@@ -205,7 +205,7 @@ function modifierCharacterDetail(star:PortraitStar,group?:NumberGroup) {
   if(group.zeroCount && group.fiveCount) {
     const priority=(empty?EMPTY_PRIORITIES:HIDDEN_PRIORITIES)[star];
     const [insideTitle,insideScene]=[priority[2],priority[3]];
-    const names:Record<PortraitStar,string>={shengqi:'能主动联系，也会怕追问让人不舒服',tianyi:'愿意主动付出，自己的期待却说得少',yannian:'能站出来负责，也有没讲清的要求',fuwei:'熟悉的事会认真做，新选择仍想再等等',jueming:'答应时有冲劲，吃力时却不愿开口',wugui:'能讲出新主意，也有没告诉别人的打算',liusha:'喜欢会表现出来，委屈却常先藏着',huohai:'有话愿意说，真正的不满却未必说透'};
+    const names:Record<PortraitStar,string>={shengqi:'能主动联系，也会怕追问让人不舒服',tianyi:'愿意主动付出，自己的期待却说得少',yannian:'能站出来负责，也有没讲清的要求',fuwei:'熟悉的事会认真做，新选择仍想再等等',jueming:'答应时有冲劲，吃力时却不愿开口',wugui:'能讲出新主意，也有没告诉别人的打算',liusha:'喜欢会表现出来，委屈却常先藏着',huohai:'平时愿意交流，有意见时却怕起争执'};
     return {outside:{title:names[star],scene:characterExample(star,'visible','outside')+(empty?EMPTY_PRIORITIES[star][1]:'但有些为难或不愿意的地方，又没有讲出来。别人只看见你当时的回应，未必知道你还有顾虑。')},inside:{title:insideTitle,scene:insideScene}};
   }
   if(group.zeroCount) {
@@ -222,10 +222,9 @@ export function characterDetail(star:PortraitStar,group?:NumberGroup) {
   const pairs=Array.from({length:Math.max(0,group.base.length-1)},(_,i)=>group.base.slice(i,i+2));
   const pair=pairs.find(p=>p[0]!==p[1])??pairs[0];
   const base=PAIR_CHARACTERS[pair];if(!base)return modified;
-  const mixed=group.zeroCount&&group.fiveCount;
-  const empty=group.modifierRuns.some(run=>run.position==='trailing'&&run.digits.includes('0'));
-  const outward=mixed?(empty?EMPTY_PRIORITIES[star][1]:'但碰到自己为难、不愿意的地方，你又未必说出来。别人听见了你的建议，却不知道你还有哪些顾虑。'):modified.outside.scene;
-  const inward=base.inside.scene.match(/[^。！？]+[。！？]?/g)?.slice(0,2).join('')??base.inside.scene;
-  return {outside:{title:base.outside.title,scene:base.outside.scene+outward},
-    inside:{title:modified.inside.title,scene:inward+modified.inside.scene}};
+  const short=(text:string)=>text.match(/[^。！？]+[。！？]?/g)?.slice(0,2).join('')??text;
+  // Describe the actual pair first, then explain its modifier separately.
+  // Avoid appending two full versions of the same personality paragraph.
+  return {outside:{title:base.outside.title,scene:base.outside.scene},
+    inside:{title:modified.inside.title,scene:short(modified.inside.scene)}};
 }

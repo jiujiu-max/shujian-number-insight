@@ -5097,3 +5097,7 @@ footer {
   .page-shell .type-cover .type-role { font-size: 19px; }
   .page-shell .growth-summary article :is(strong,p), .page-shell .wealth-route article :is(strong,p), .page-shell .social-reading { font-size: 17px; line-height: 1.9; }
 }
+
+/* Direct explanations: one social column; only money retains a short example. */
+.relationship-layout.direct-reading { grid-template-columns: minmax(0, 1fr); }
+.money-summary { font-weight: 600; }

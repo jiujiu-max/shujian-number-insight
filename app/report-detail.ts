@@ -1,3 +1,4 @@
+import { directRelationship } from './report-relationship';
 import { personalBase, personalReading } from './report-personal';
 import { pairMoneyModifier } from './pair-money-modifiers';
 import { additionalPairDetail } from './pair-detail-extra';
@@ -217,15 +218,37 @@ function legacyExpandedReading(star:PortraitStar,group:NumberGroup|undefined,dom
 // Personal strengths and spending decisions are independent of the relationship
 // chapter. Course exceptions keep their concrete subject and 0/5 mechanism.
 export function expandedReading(star:PortraitStar,group:NumberGroup|undefined,domain:ReadingDomain,age:number):Detail|undefined {
- if(domain==='relationship')return legacyExpandedReading(star,group,domain,age);
+ if(domain==='relationship')return directRelationship(star,group);
  const own=personalReading(star,group,domain,age)!;
+ if(domain==='money'&&group?.stars[0]==='shengqi'&&group.zeroCount>=2&&!group.fiveCount&&group.modifierPosition==='middle')return {...own,
+   style:'容易反复追加投入',lead:'前面的钱没收回，又想再付一点把事情办成。',
+   explanation:'你怕停下来让前面的钱白花，所以容易接受再补一点的说法。但追加并不等于原来的问题已经解决，也不代表钱能按时退回。',
+   example:'前一笔钱还没退，对方说再补一点就能办好。你又付了一次，事情却仍没有办成。',
+   watchout:'为了挽回前面的花费，反而又多付了钱。'};
+
  const tailored=group&&domain==='money'?pairMoneyModifier(group,age):undefined;
  if(tailored)return {...own,...tailored,watchout:tailored.lead};
- const special=group && (['856','154','145','959'].includes(group.raw)||group.base==='82'||(star==='tianyi'&&domain==='money'&&group.fiveCount&&!group.zeroCount));
+ const special=group && (['856','154','145','959'].includes(group.raw)||group.base==='82'||group.base==='99'||(star==='tianyi'&&domain==='money'&&group.fiveCount&&!group.zeroCount));
  if(special) {
+  if(domain==='money'&&group.base==='99'&&!group.zeroCount)return {...own,
+    style:'计划型消费',lead:'自己的钱有打算，共同开销却不一定说清预算。',
+    explanation:'你习惯自己先算好，想花多少、留多少通常心里有数。但和别人一起买东西时，如果没有讲出上限，对方就可能按更高的预算挑选。',
+    example:'一起买用品，你心里有预算却没说。对方选了更贵的，到付款时才发现两个人想的价钱不同。'};
+  if(domain==='money'&&group.base==='82'&&!group.zeroCount&&!group.fiveCount)return {...own,
+    style:'会参考推荐，付款仍要算清',lead:'愿意了解别人推荐的选择，也在意实际要花多少。',
+    explanation:'别人的介绍能让你少找一些信息，但是否适合自己，还要看用途、总费用和售后。关系好不代表这次购买一定划算，需要自己作决定。',
+    example:'有人推荐一件用品，你愿意了解，比较完用途和总价以后再决定买不买。'};
+  if(domain==='money'&&star==='tianyi'&&group.fiveCount&&!group.zeroCount){
+    const effort=group.raw==='856';
+    return {...own,style:'重视收入和付出是否相称',
+      lead:effort?'愿意多做多得，容易忽略自己花了多少时间。':'重视稳定进账，也要算清新增要求是否划算。',
+      explanation:effort?'你愿意认真做事、争取报酬。多拿一些钱时，也可能多用了时间和精力；只比较拿到多少钱，就容易漏掉休息减少、其他安排被挤占的问题。':'你看重事情认真完成后带来的后续机会。如果涉及报酬，新增要求是否多花时间、费用是否相应增加，需要重新算清，不能只沿用上次的约定。',
+      example:effort?'如果做有报酬的事，多接一项任务能多拿钱，但也多用了两小时，原本的休息时间就少了。':'如果再次接有报酬的任务，这次要求增加，费用却和上次一样，做完才发现花的时间多了。',
+      watchout:effort?'只看多拿的钱，容易忽略多花的时间。':'要求增加了，费用也需要重新确认。'};
+  }
   const detail=legacyExpandedReading(star,group,domain,age);
   if(detail)return {...own,...detail,lead:detail.lead??own.lead,watchout:detail.explanation.split('。').filter(Boolean).at(-1)+'。',
-   ...(domain==='money'&&star==='tianyi'&&group.fiveCount?{style:'会考虑付出和回报，也要算上自己的时间',lead:'多拿了一点钱，也多花了不少时间。'}:{})};
+   ...(domain==='money'&&star==='tianyi'&&group.fiveCount?{style:'重视收入和付出是否相称',lead:'会争取报酬，也需要算清多花了多少时间。'}:{})};
  }
  return own;
 }

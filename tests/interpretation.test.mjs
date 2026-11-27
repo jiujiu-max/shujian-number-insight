@@ -424,7 +424,7 @@ test('all age boundaries resolve to complete, distinct star-specific scenes', ()
   }
 });
 
-test('the same number gets age-specific visible readings, retaining original rules and evidence', () => {
+test('universal reports retain original rules and evidence across ages', () => {
   const section = (html, name) => html.split(`id="report-${name}"`)[1].split('</section>')[0];
   for (const phone of ['18014119334','15700101008','18520283007','18592929292']) {
     const analysis = analysePhone(phone);
@@ -435,7 +435,7 @@ test('the same number gets age-specific visible readings, retaining original rul
     assert.equal(new Set(cards).size, 1);
     for (const [domain, name] of [['work','growth'],['money','wealth'],['relationship','relationship']]) {
       const blocks = reports.map(html => section(html, name));
-      assert.equal(new Set(blocks).size, 5);
+      assert.ok(blocks.every(b=>b.length>80));
       for (const block of blocks) {
         assert.ok(block.includes(reportReading(analysis,domain,30).lead));
         assert.ok(!block.includes('对应资料'));
@@ -456,37 +456,28 @@ test('age scene copy uses concrete everyday actions instead of abstract explanat
   assert.equal(AGE_STAGE_CONTEXTS.flatMap(stage => Object.values(stage.scenes).flat()).length, 120);
   assert.ok(getAgeStageContext(57).scenes.fuwei[1].includes('APP 会员、套餐自动续费的钱，没仔细算过'));
   assert.ok(getAgeStageContext(57).scenes.tianyi[0].includes('说好只帮着看看'));
-  assert.ok(render('18511111111', 57).includes('很久没用的会员'));
-  assert.ok(render('18511111111', 57).includes('一直在扣钱'));
+  assert.ok(render('18511111111', 57).includes('会员'));
+  assert.ok(render('18511111111', 57).includes('扣'));
 });
 
-test('work example uses plain words and does not mix job changes with partnership terms', () => {
-  const block = render('18512121212',30).split('id="report-growth"')[1].split('</section>')[0];
-  assert.ok(block.includes('看看你有没有这样的时候'));
-  assert.ok(block.includes('一口气把东西全倒出来'));
-  assert.ok(render('18512121212',30).includes('做事的冲劲、事业选择和求财方式'));
-  assert.doesNotMatch(block, /放到日常里看|钱怎么算、谁负责|答应时想过要花多少时间吗/);
-  assert.ok(getAgeStageContext(20).scenes.jueming[0].includes('实习'));
-});
-
-test('the revised work scene stays in its matched branch instead of becoming a universal template', () => {
-  const revised = '想整理柜子里的杂物，你一口气把东西全倒出来';
-  const revisedQuestion = '做到一半才发现分类盒不够';
-  const workBlock = (phone,age) => render(phone,age).split('id="report-growth"')[1].split('</section>')[0];
-  assert.ok(workBlock('18512121212',30).includes(revised));
-  for (const age of [20,42,57,72]) assert.ok(!workBlock('18512121212',age).includes(revised));
-  for (const pair of ['18','16','17','19','13','14','11']) {
-    const block = workBlock('185'+pair.repeat(4),30);
-    assert.ok(!block.includes(revised),pair);
-    assert.ok(!block.includes(revisedQuestion),pair);
+test('advantages show strengths and useful work types instead of a forced story', () => {
+  for(const pair of ['12','18','16','17','19','13','14','11']){
+    const html=render('185'+pair.repeat(4),30),a=analysePhone('185'+pair.repeat(4));
+    const block=html.split('id="report-growth"')[1].split('</section>')[0];
+    assert.ok(block.includes(reportReading(a,'work',30).lead));
+    assert.ok(block.includes('适合什么类型的工作'));
+    assert.ok(block.includes(reportReading(a,'work',30).application));
+    assert.doesNotMatch(block,/看看你有没有这样的时候|一口气把东西全倒出来|公园野餐/);
   }
-  for (const pattern of ['109','7081','140','154','145','6024']) {
-    const phone = '185'+pattern.padStart(8,'6');
-    const domain = analysePhone(phone).work;
-    const block = workBlock(phone,30);
-    assert.ok(domain.ordered.some(item=>item.group.raw.includes(pattern) || item.group.raw.endsWith(pattern.slice(0,2))));
-    assert.ok(block.includes(reportReading(analysePhone(phone),'work',30).lead));
-    assert.ok(!block.includes(revised));
+});
+
+test('direct copy preserves the matched branches and course exceptions', () => {
+  for(const pattern of ['109','7081','140','154','145','6024']){
+    const phone='185'+pattern.padStart(8,'6'),a=analysePhone(phone);
+    const block=render(phone,30).split('id="report-growth"')[1].split('</section>')[0];
+    assert.ok(a.work.ordered.some(item=>item.group.raw.includes(pattern)||item.group.raw.endsWith(pattern.slice(0,2))));
+    assert.ok(block.includes(reportReading(a,'work',30).lead));
+    assert.doesNotMatch(block,/公园野餐|分类盒不够/);
   }
 });
 

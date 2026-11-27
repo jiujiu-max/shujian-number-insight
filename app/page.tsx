@@ -1,4 +1,5 @@
 "use client";
+import { hasPersonalPair } from "./report-personal";
 
 import { transitionDetail } from './report-transition-detail';
 
@@ -3134,7 +3135,7 @@ function reportReading(analysis: Analysis, domain: ReadingDomain, age: number) {
   // A full explanation develops the reason and tradeoff. Do not stack the
   // former generic scene and consequence around an almost identical example.
   const sourceDetails = freshDetails(insight.text,[lead,example]);
-  const specificSource = domain==='relationship' && entry?.composition && entry.group.stars[0]==='shengqi' && entry.group.zeroCount>=2 && !entry.group.fiveCount;
+  const specificSource = false;
   const paragraphs = specificSource ? sourceDetails
     : expanded?.explanation ? [...(expanded && 'context' in expanded && expanded.context ? [expanded.context] : []),expanded.explanation].map(text=>freshDetails(text,[lead]).join('')).filter(Boolean) : sourceDetails;
   return {
@@ -3157,6 +3158,11 @@ function reportSupplements(analysis: Analysis, domain: ReadingDomain, age: numbe
   type Item={pattern:string;index:number;endIndex:number;key:StarKey;mood:ReturnType<typeof modifierMood>;lead:string;example:string;explanation?:string;context?:string;strength?:string;application?:string;style?:string;facetPattern?:string};
   const result:Item[]=[];
   const add=(item:Item)=>{
+    // A fallback star paragraph is not a new pair-specific money insight.
+    // Keep documented pairs, modifiers and ordered transitions; omit repeated
+    // generic spending advice presented as another difference.
+    if(domain==='money'&&item.mood==='plain'&&!hasPersonalPair(item.facetPattern??item.pattern.slice(0,2),domain)
+      &&!transitionDetail(item.pattern,domain,age))return;
     if(!item.example || item.example===primary.example)return;
     if(result.some(other=>other.example===item.example))return;
     result.push({...item,explanation:item.explanation?freshDetails(item.explanation,[item.lead]).join(''):undefined});
@@ -3280,11 +3286,11 @@ function ResultSectionV3({ analysis, age, gender }: {
         <div className="growth-summary">
           <article><span>你擅长什么</span><strong>{work.lead}</strong>
             {work.strength && <p>{work.strength}</p>}
-            {work.application && <p><b>适合的工作或任务：</b>{work.application}</p>}
+
             {work.paragraphs[0] && <p className="reading-explanation">{work.paragraphs[0]}</p>}
             {work.paragraphs.length > 1 && <details className="reading-details on-dark"><summary>再说具体一点</summary>{work.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
-          <article><span>看看你有没有这样的时候</span><p>{work.example}</p></article>
+          <article><span>适合什么类型的工作</span><p>{work.application}</p></article>
         </div>
         <ReadingSupplement items={workExtra} />
         {!workExtra && work.consequence && <p className="reading-consequence"><b>如果一直这样</b>{work.consequence}</p>}
@@ -3293,12 +3299,12 @@ function ResultSectionV3({ analysis, age, gender }: {
       <section className="topic-section" id="report-wealth">
         <div className="topic-heading"><span>03 · 用钱</span><h3>你的用钱习惯</h3></div>
         <div className="wealth-route">
-          <article><span>{money.style ?? "你会怎样决定花这笔钱"}</span><strong>{money.lead}</strong>
+          <article><span>消费习惯与用钱方式</span><strong>{money.style ?? "你的用钱倾向"}</strong><p className="money-summary">{money.lead}</p>
             {money.paragraphs[0] && <p className="reading-explanation">{money.paragraphs[0]}</p>}
             {money.paragraphs.length > 1 && <details className="reading-details"><summary>再说具体一点</summary>{money.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </article>
           <i aria-hidden="true">→</i>
-          <article><span>放到生活里看</span><p>{money.example}</p></article>
+          <article><span>比如</span><p>{money.example}</p></article>
         </div>
         <ReadingSupplement items={moneyExtra} />
         {!moneyExtra && money.consequence && <p className="reading-consequence"><b>如果一直这样</b>{money.consequence}</p>}
@@ -3306,12 +3312,12 @@ function ResultSectionV3({ analysis, age, gender }: {
 
       <section className="topic-section" id="report-relationship">
         <div className="topic-heading"><span>04 · 关系</span><h3>人际关系</h3></div>
-        <div className="relationship-layout">
-          <div><span>{stage.socialPeople}</span><p className="social-reading">{social.lead}</p>
+        <div className="relationship-layout direct-reading">
+          <div><span>你和人相处的方式</span><p className="social-reading">{social.lead}</p>
             {social.paragraphs[0] && <p className="reading-explanation">{social.paragraphs[0]}</p>}
             {social.paragraphs.length > 1 && <details className="reading-details"><summary>再说具体一点</summary>{social.paragraphs.slice(1).map((text,i)=><p key={i}>{text}</p>)}</details>}
           </div>
-          <aside><span>有没有这样的时候</span><strong>{social.example}</strong></aside>
+
         </div>
         <ReadingSupplement items={socialExtra} />
         {!socialExtra && social.consequence && <p className="reading-consequence"><b>如果一直这样</b>{social.consequence}</p>}

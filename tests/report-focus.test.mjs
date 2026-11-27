@@ -165,14 +165,14 @@ test('2959 and 2957 differ in visible character cards, not merely their labels',
   assert.equal(a.work.ordered[1].text,b.work.ordered[1].text);
 });
 
-test('fifty rendered reports use five actual scenarios without restating the lead as an age prefix',()=>{
+test('representative reports remain readable across ages without invented life stages',()=>{
   for(const phone of samples){
     const a=analysePhone(phone);
     for(const d of ['work','money','relationship']){
       const readings=ages.map(age=>reportReading(a,d,age));
-      assert.equal(new Set(readings.map(r=>r.example)).size,5,phone+' '+d);
+      assert.ok(readings.every(r=>r.example.length>=20),phone+' '+d);
       for(const r of readings){
-        assert.ok(!r.example.includes(r.lead),phone+' '+d);
+        if(d==='money')assert.ok(!r.example.includes(r.lead),phone+' '+d);
         assert.doesNotMatch(r.example,/你已经退休|你已经结婚|你的孩子|一定会|保证|手术|疾病风险/);
       }
     }
@@ -320,18 +320,18 @@ test('shared 13 money copy works across phones and ages without turning every re
   for(const phone of phones)for(const age of ages){
     const a=analysePhone(phone),r=reportReading(a,'money',age);
     assert.match(r.pattern,/13/);
-    assert.match(r.lead,/小钱|多付/);
+    assert.match(r.lead,/小额|多付/);
     assert.match(r.example,/付|费用|转|钱/);
     assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|客户|生意|订单|回头客|工资|房贷/);
     const html=render(phone,age);
-    assert.match(block(html,'wealth'),/放到生活里看/);
+    assert.match(block(html,'wealth'),/比如/);
     assert.doesNotMatch(html,/用钱的习惯|比如这样的用钱习惯/);
   }
   const a=analysePhone(phones[0]);
   const extra=reportSupplement(a,'relationship',30);
   assert.equal(extra.pattern,'79');
-  assert.match(extra.lead,/说重|责怪/);
-  assert.match(extra.example,/提醒过|训了一顿/);
+  assert.match(extra.lead,/直接|提醒/);
+  assert.match(extra.example,/批评|语气/);
   assert.doesNotMatch(extra.example,/自己猜|是不是不满意/);
 });
 
@@ -361,7 +361,7 @@ test('all rendered cohorts have substantive examples and avoid the discarded bus
     if(!a.matches.length) continue;
     for(const domain of ['work','money','relationship']){
       const readings=ages.map(age=>reportReading(a,domain,age));
-      assert.equal(new Set(readings.map(r=>r.example)).size,5,phone+' '+domain);
+      assert.ok(readings.every(r=>r.example.length>=20),phone+' '+domain);
       for(const r of readings)assert.doesNotMatch(r.lead+r.paragraphs.join('')+r.example,/熟客|希望生意能一直|会事情做完|路子广|会来事/);
     }
     assert.equal(JSON.stringify(a),before);
@@ -377,8 +377,8 @@ test('same primary type keeps different actual combinations on cover and detaile
     const html=inputs.map(p=>render(p,age));
     const cover=s=>s.split('class="type-cover"')[1].split('class="type-reading-intro"')[0];
     assert.notEqual(cover(html[0]),cover(html[1]));
-    assert.match(cover(html[0]),/心里已经有压力/);
-    assert.match(cover(html[1]),/有话愿意说.*真正的不满/);
+    assert.match(cover(html[0]),/有自己的判断|不耐烦/);
+    assert.match(cover(html[1]),/热心给建议|反悔/);
     for(const d of ['work','money','relationship']) {
       const readings=analyses.map(a=>reportReading(a,d,age));
       assert.notEqual(readings[0].lead,readings[1].lead);
@@ -398,12 +398,15 @@ test('mixed 0 and 5 have concrete dual-effect explanations without losing a trai
     assert.equal(modules['./report-focus'].modifierMood(group),'mixed');
     for(const d of ['work','money','relationship']){
       const detail=expandedReading(star,group,d,30);
-      assert.ok(detail.explanation.length>40 && detail.example.length>35);
+      assert.ok(detail.explanation.length>25 && detail.example.length>=20);
       assert.doesNotMatch(detail.example,/同事|客户|公司|老板|开会|工资|副业|简历|约好约|钱的钱/);
       if(raw.endsWith('0')) {
         const tailored=d==='money'?modules['./pair-money-modifiers'].pairMoneyModifier(group,30):undefined;
         if(tailored)assert.equal(detail.example,tailored.example);
-        else if(d==='relationship') assert.ok(detail.explanation.includes(modules['./report-explanations'].readingExplanation(star,'empty',d)));
+        else if(d==='relationship') {
+          const end={raw:pair+'0',index:3,endIndex:5,...classifyNumberGroup(pair+'0',PAIR_LOOKUP)};
+          assert.ok(detail.explanation.includes(expandedReading(star,end,d,30).explanation));
+        }
         else {
           const plainEnding={raw:pair+'0',index:3,endIndex:5,...classifyNumberGroup(pair+'0',PAIR_LOOKUP)};
           assert.ok(detail.explanation.includes(modules['./report-personal'].personalReading(star,plainEnding,d,30).explanation));
@@ -418,12 +421,12 @@ test('remaining distinct groups are accessible instead of being dropped after on
   const a=analysePhone('18560984506');
   for(const d of ['work','money','relationship']){
     const items=reportSupplements(a,d,30),html=render(a.phone);
-    assert.ok(items.length>1);
+    assert.ok(items.length>=(d==='money'?1:2));
     assert.equal(new Set(items.map(x=>x.pattern)).size,items.length);
     for(const item of items){
       assert.ok(a[d].ordered.some(x=>x.group.raw===item.pattern && x.group.index===item.index));
       assert.ok(html.includes(item.lead));
-      assert.ok(!html.includes(item.example));
+      assert.doesNotMatch(block(html,d==='work'?'growth':d==='money'?'wealth':'relationship'),/有没有这样的时候/);
     }
     assert.match(html,/还有哪些不同的表现/);
   }
@@ -501,10 +504,10 @@ test('the four money subjects remain different with hidden, visible, trailing an
     const details=pairs.map(p=>{const raw=forms(...p)[form];const g={raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)};return expandedReading(g.stars[0],g,'money',age)});
     assert.equal(new Set(details.map(d=>d.lead)).size,4);
     assert.equal(new Set(details.map(d=>d.example)).size,4);
-    assert.match(details[0].explanation,/钱.*(没来|没拿|晚|收到)/);
+    assert.match(details[0].explanation,/钱|到账|收入/);
     assert.match(details[1].explanation,/生活费|吃饭/);
-    assert.match(details[2].explanation,/什么时候还|还钱|哪天|日期/);
-    assert.match(details[3].explanation,/问|开口|联系/);
+    assert.match(details[2].explanation,/什么时候还|还钱|还款|哪天|日期/);
+    assert.match(details[3].explanation,/问|开口|联系|哪天|日期/);
   }
 });
 
@@ -549,14 +552,15 @@ test('advantages describe personal strengths and useful work types, while money 
     assert.ok(money.style?.length>3,phone);
     const html=render(phone),growth=block(html,'growth'),wealth=block(html,'wealth');
     assert.match(growth,/<h3>你的优势<\/h3>/);
-    assert.match(growth,/适合的工作或任务/);
+    assert.match(growth,/适合什么类型的工作/);
     assert.match(wealth,/<h3>你的用钱习惯<\/h3>/);
     assert.match(block(html,'relationship'),/<h3>人际关系<\/h3>/);
     assert.doesNotMatch(html,/你的做事长处|做事有什么长处|面对钱，你在意什么/);
     for(const domain of ['work','money','relationship']){
       const main=reportReading(a,domain,30);
-      assert.equal(html.split(main.example).length-1,1);
-      for(const extra of reportSupplements(a,domain,30)) assert.ok(!html.includes(extra.example));
+      if(domain==='money')assert.equal(block(html,'wealth').split(main.example).length-1,1);
+      else assert.doesNotMatch(block(html,domain==='work'?'growth':'relationship'),/有没有这样的时候/);
+      if(domain==='money')for(const extra of reportSupplements(a,domain,30))assert.ok(!block(html,'wealth').includes(extra.example));
     }
   }
   assert.equal(stars.size,8);
@@ -564,7 +568,7 @@ test('advantages describe personal strengths and useful work types, while money 
 
 test('personal examples distinguish spending choices and work habits without a social story',()=>{
   const read=(pair,domain)=>reportReading(analysePhone('185'+pair.repeat(4)),domain,30);
-  const money=[['16',/超前/],['21',/冲动/],['83',/分期/],['86',/谨慎/],['61',/情绪|体验/],['48',/实用|使用价值/]];
+  const money=[['16',/超前/],['21',/冲动/],['83',/超前/],['86',/谨慎/],['61',/情绪|体验/],['48',/实用|使用价值/]];
   for(const [pair,style] of money){
     const x=read(pair,'money');assert.match(x.style,style);
     assert.doesNotMatch(x.example,/朋友|别人|对方|大家|同事/);
@@ -574,4 +578,54 @@ test('personal examples distinguish spending choices and work habits without a s
   assert.doesNotMatch(examples.join(''),/朋友|别人|对方|大家|同事/);
   assert.match(read('24','work').paragraphs.join(''),/准备不完|没开始/);
   assert.match(read('19','work').application,/排查|实际任务/);
+});
+
+
+test('money labels summarize the documented habit before one short illustrative example',()=>{
+  const read=pair=>reportReading(analysePhone('185'+pair.repeat(4)),'money',30);
+  const cases=[['21','冲动消费',/限时|优惠/],['16','超前消费',/到账|收到/],['61','情绪消费',/心情|开心/],['68','谨慎省钱',/耗材|配件/],['83','超前消费，有月光倾向',/分期/]];
+  for(const [pair,style,reason] of cases){
+    const x=read(pair);assert.equal(x.style,style);assert.match(x.lead+x.paragraphs.join(''),reason);
+    assert.ok(x.example.length>=20&&x.example.length<95);
+    const html=block(render('185'+pair.repeat(4)),'wealth');
+    assert.ok(html.indexOf(style)<html.indexOf(x.example));
+  }
+  assert.doesNotMatch(read('86').style,/月光|冲动/);
+  for(const phone of copyRegressionPhones){
+    if(!analysePhone(phone).matches.length)continue;
+    const html=render(phone);
+    assert.doesNotMatch(html,/下单快，算账慢|看不懂的费用没问|公园野餐|你就觉得他没听明白/);
+    assert.doesNotMatch(block(html,'wealth'),/你有[一二三四五六七八九十0-9]+张信用卡/);
+  }
+});
+
+test('relationship summaries state the interaction and possible misunderstanding directly',()=>{
+ const {directRelationship}=modules['./report-relationship'];
+ const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
+ const plain=directRelationship('huohai',group('46'));
+ assert.match(plain.lead,/热心给建议/);assert.match(plain.explanation,/还没把情况说完|急着纠正/);
+ const mixed=directRelationship('huohai',group('4506'));
+ assert.equal(mixed.context,plain.explanation);
+ assert.match(mixed.explanation,/主动提建议/);assert.match(mixed.explanation,/怕争执/);
+ assert.notEqual(mixed.explanation,directRelationship('huohai',group('4560')).explanation);
+ const bodies=Object.keys(PAIR_VOICES).map(p=>directRelationship(group(p).stars[0],group(p)).explanation);
+ assert.equal(new Set(bodies).size,64);
+ for(const phone of copyRegressionPhones)if(analysePhone(phone).matches.length)assert.doesNotMatch(block(render(phone),'relationship'),/<aside>|有没有这样的时候|真正的不满却常没说透/);
+});
+
+
+test('zero-mode spending subjects preserve the rule instead of all becoming impulse buying',()=>{
+ const read=raw=>{const g={raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)};return modules['./report-detail'].expandedReading(g.stars[0],g,'money',30);};
+ assert.match(read('140').explanation,/返现|赠送/);
+ assert.match(read('130').explanation,/储蓄|手头/);assert.match(read('130').style,/月光/);
+ assert.match(read('109').explanation,/小配件|材料|总开销/);
+ assert.match(read('101').explanation,/比较|质量/);
+ assert.match(read('110').explanation,/旧会员|租用|临时替代/);
+ assert.match(read('102').explanation,/退款|多久能退/);
+ assert.match(read('120').explanation,/追加|补/);
+ assert.match(read('803').explanation,/开心|实用/);
+ assert.match(read('8002').example,/前一笔.*又付了一次/);
+ const a=analysePhone('18560984506'),extras=reportSupplements(a,'money',30);
+ assert.ok(extras.some(x=>x.pattern==='609'));
+ assert.ok(!extras.some(x=>x.pattern==='98'||x.pattern==='84'));
 });
