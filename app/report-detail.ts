@@ -153,7 +153,7 @@ function mixedDetail(star:PortraitStar, domain:ReadingDomain, age:number):Detail
     jueming:{work:'答应时积极，发现吃力以后又不愿开口求助。',money:'看好了愿意先付钱，收回或退款的时间却没问清。',relationship:'愿意替人出面，自己的不满却容易忍着不说。'},
     wugui:{work:'新办法愿意试，临时改动却没让别人及时知道。',money:'新东西都想试，几笔花费放在一起却没算清。',relationship:'表面能接话，心里却在猜对方没说完的意思。'},
     liusha:{work:'会主动照顾细节，不想再改时却很难拒绝。',money:'喜欢的东西舍得买，预算吃紧时却不好意思说。',relationship:'喜欢会表达，委屈时却盼着别人自己看出来。'},
-    huohai:{work:'办法愿意提，怕伤人的那条意见却没说。',money:'答应出钱时爽快，有费用疑问却不好再问。',relationship:'平时有话愿意说，真正的不满却常没说透。'}
+    huohai:{work:'办法愿意提，怕伤人的那条意见却没说。',money:'答应出钱时爽快，有费用疑问却不好再问。',relationship:'平时愿意表达，有意见时又怕起争执。'}
   };
   const [explanation,example]=rows[star][domain];return {lead:leads[star][domain],explanation,example};
 }
@@ -226,6 +226,17 @@ export function expandedReading(star:PortraitStar,group:NumberGroup|undefined,do
    example:'前一笔钱还没退，对方说再补一点就能办好。你又付了一次，事情却仍没有办成。',
    watchout:'为了挽回前面的花费，反而又多付了钱。'};
 
+ if(domain==='work') {
+  const raw=group?.raw,pair=group?.base;
+  const specialWork:Record<string,[string,string,string,string]>={
+   '154':['善于请教，能找到有用的帮助','你能把不懂的地方说清楚，愿意主动了解合适的人和方法。','可考虑资料搜集、项目协调、活动执行。这类工作需要找准信息，主动沟通，再把后续接着做完。','你能借助介绍少走弯路，但不能把有人指点当成已经有人代办。后续准备和推进仍需要自己负责。'],
+   '145':['重视长期合作，愿意互相支持','你记得有用的经验和帮助，愿意保持联系，不只在有事时才找人。','可考虑社群运营、项目协调、合作跟进。这类工作需要持续回应、记住约定，并维护稳定的联系。','你容易为了回应好意而答应过多。维持合作需要认真，也需要按自己的时间和能力确定能做多少。'],
+   '82':['愿意学习，善于运用实际帮助','你能听进有用的经验，也愿意按提醒补上自己不熟悉的部分。','可考虑技术支持、资料整理、流程执行。这类工作有明确的经验可参考，也需要自己动手落实。','你容易对推荐的方法比较放心。别人给的是信息和建议，是否适合眼前的条件，仍要自己核对。'],
+   '99':['耐心观察，判断比较慎重','你愿意先听清、想清，不容易被一句话带着仓促作决定。','可考虑资料审核、质量检查、问题分析。这类工作需要耐心核对，也需要及时说明自己的判断。','你容易等到完全有把握才表达。思考很充分，却迟迟不说，重要的意见就可能没有被纳入安排。']};
+  const key=raw==='154'||raw==='145'?raw:pair==='82'&&!group?.zeroCount&&!group?.fiveCount?'82':pair==='99'&&!group?.zeroCount?'99':undefined;
+  if(key){const [lead,strength,application,explanation]=specialWork[key];return {...own,lead,strength,application,explanation,example:strength+explanation,watchout:explanation.split('。').filter(Boolean).at(-1)+'。'};}
+  return own;
+ }
  const tailored=group&&domain==='money'?pairMoneyModifier(group,age):undefined;
  if(tailored)return {...own,...tailored,watchout:tailored.lead};
  const special=group && (['856','154','145','959'].includes(group.raw)||group.base==='82'||group.base==='99'||(star==='tianyi'&&domain==='money'&&group.fiveCount&&!group.zeroCount));

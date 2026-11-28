@@ -3230,10 +3230,9 @@ function ResultSectionV3({ analysis, age, gender }: {
   const invitation = consultationFocus(focus.star,age,consultationReading.mood,focusedEntry(analysis,focus.domain)?.group);
   const watchout = focusHook({...focus,mood:consultationReading.mood},consultationReading.watchout ?? consultationReading.lead);
   const shareData = makeTypeShareData(analysis.primary.key, analysis.secondary?.key, radar, watchout,focus.role,character.outside.title,work.strength);
-  const visibleCopy = [work.lead,money.lead,social.lead,work.example,money.example,social.example,watchout];
-  const outsideScene = freshDetails(character.outside.scene,[...visibleCopy,character.outside.title]).join("")
+  const outsideScene = freshDetails(character.outside.scene,[]).join("")
     || characterExample(focus.star,work.mood,'outside');
-  const insideScene = freshDetails(character.inside.scene,[...visibleCopy,outsideScene,character.inside.title]).join("")
+  const insideScene = freshDetails(character.inside.scene,[outsideScene]).join("")
     || characterExample(focus.star,work.mood,'inside');
   const topics = [["性格", "character"], ["优势", "growth"], ["用钱", "wealth"],
     ["关系", "relationship"], ["健康", "health"], ["咨询", "decision"]];

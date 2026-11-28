@@ -629,3 +629,42 @@ test('zero-mode spending subjects preserve the rule instead of all becoming impu
  assert.ok(extras.some(x=>x.pattern==='609'));
  assert.ok(!extras.some(x=>x.pattern==='98'||x.pattern==='84'));
 });
+
+test('modified personalities retain the actual pair motivation and distinguish a continuing five',()=>{
+ const {characterDetail}=modules['./report-conversation'];
+ const {PAIR_CHARACTERS}=modules['./character-readings'];
+ const group=raw=>({raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)});
+ for(const pair of Object.keys(PAIR_CHARACTERS).filter(p=>p!=='99')){
+  for(const raw of [pair[0]+'0'+pair[1],pair[0]+'5'+pair[1],pair+'0',pair+'5',pair[0]+'05'+pair[1]]){
+   const g=group(raw),d=characterDetail(g.stars[0],g);
+   assert.equal(d.outside.scene,PAIR_CHARACTERS[pair].outside.scene,pair+' outside');
+   assert.ok(d.inside.scene.includes(PAIR_CHARACTERS[pair].inside.scene.split('。')[0]+'。'),pair+' motivation');
+  }
+  const middle=group(pair[0]+'5'+pair[1]),end=group(pair+'5');
+  assert.notEqual(characterDetail(middle.stars[0],middle).inside.scene,characterDetail(end.stars[0],end).inside.scene,pair+' five position');
+ }
+ const a=modules['./report-detail'].expandedReading('liusha',group('165'),'money',30);
+ const b=modules['./report-detail'].expandedReading('liusha',group('156'),'money',30);
+ assert.notEqual(a.explanation,b.explanation);
+ assert.match(a.explanation,/习惯|下一笔/);
+});
+
+test('personality copy describes the person and work exceptions keep direct strengths',()=>{
+ const {PAIR_CHARACTERS}=modules['./character-readings'];
+ assert.match(PAIR_CHARACTERS['83'].outside.title,/细腻|敏感/);
+ assert.match(PAIR_CHARACTERS['89'].outside.title,/独立|好强/);
+ assert.match(PAIR_CHARACTERS['46'].outside.title,/主见|道理/);
+ assert.notEqual(PAIR_CHARACTERS['89'].inside.scene,PAIR_CHARACTERS['46'].inside.scene);
+ const titles=Object.values(PAIR_CHARACTERS).map(c=>c.outside.title);
+ assert.equal(new Set(titles).size,64);
+ for(const card of Object.values(PAIR_CHARACTERS))for(const side of ['outside','inside']){
+  assert.doesNotMatch(card[side].scene,/公园|野餐|教程|买了|付款|先做什么|再找谁/);
+ }
+ for(const raw of ['154','145','82','99']){
+  const g={raw,index:3,endIndex:raw.length+2,...classifyNumberGroup(raw,PAIR_LOOKUP)};
+  const d=modules['./report-detail'].expandedReading(g.stars[0],g,'work',30);
+  assert.match(d.application,/可考虑/);
+  assert.ok(d.strength.length>15);
+  assert.doesNotMatch(d.explanation,/朋友请你|准备.*出游|常联系的朋友/);
+ }
+});

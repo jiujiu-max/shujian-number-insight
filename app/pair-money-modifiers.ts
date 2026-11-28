@@ -12,7 +12,7 @@ const rows:Record<string,Record<'hidden'|'visible'|'empty',[string,string,string
     "visible": [
       "超前消费",
       "预期的钱还没到手，已经先买了。",
-      "你不太愿意等钱到账后再买，可能先刷卡、分期，想着收到后就能还。需要留意的是，预计到账和确定的还款日不是一回事。",
+      "你不太愿意等钱到账后再买，可能先刷卡、分期，想着收到后就能还。钱可能晚到账，还款日却不会跟着推迟。",
       "想着过几天有钱，就先分期买了手机。到了还款日钱还没到，生活费得先拿去还账。"
     ],
     "empty": [
@@ -58,7 +58,7 @@ const rows:Record<string,Record<'hidden'|'visible'|'empty',[string,string,string
     "empty": [
       "垫款容易影响自己的开销",
       "钱先垫出去，自己要用时还没拿回来。",
-      "没有事先约好还款时间，对方又不能马上转回，你自己的付款就需要另找钱。账面上有人欠你钱，并不代表眼前就能使用。",
+      "没有事先约好还款时间，对方又不能马上转回，你自己的付款就需要另找钱。有人欠你钱，但钱没还回来，眼前的费用还是得自己凑。",
       "替人垫的钱没约还款日，自己交费时还没收到，只能动用原本准备存下的钱。"
     ]
   },
@@ -92,5 +92,6 @@ export function pairMoneyModifier(group:NumberGroup,_age:number) {
  const row=empty?data.empty:(group.zeroCount?data.hidden:data.visible);
  const [style,lead,explanation,example]=row;
  const active=group.zeroCount&&group.fiveCount?data.visible[1]:'';
- return {style,lead,explanation:active+explanation,example};
+ const growing:Record<string,string>={'16':'先花未来的钱容易成为习惯，还没还完，又开始安排下一笔。','18':'几笔钱混着用的习惯容易延续，每次有余额都可能高估还能花多少。','37':'替人垫过一次以后，下次也容易先答应，仍没有约好还款时间。','63':'每次提醒都把话说得含糊，容易让拖延还钱变成常态。'};
+ return {style,lead,explanation:active+explanation+(mood==='growing'?growing[pair]:''),example};
 }
